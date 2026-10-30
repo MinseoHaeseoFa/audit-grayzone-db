@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>공공·출연연 감사 그레이존 판례 DB | KITECH 내부감사 의사결정 지원</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap');
+    body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg">
+          <i class="fa-solid fa-scale-balanced text-xl"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-xl font-bold tracking-tight text-white">공공·출연연 감사 그레이존(Borderline) 전문 판례 DB</h1>
+            <span class="px-2 py-0.5 text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-full">v1.0 Pro</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">한국생산기술연구원(KITECH) & 공공기관 내부감사 의사결정 지원 시스템</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button onclick="exportData()" class="px-3.5 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-download"></i>
+          <span>데이터 내보내기</span>
+        </button>
+        <button onclick="openAddModal()" class="px-3.5 py-2 text-xs font-medium bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-sm transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-plus"></i>
+          <span>신규 판례 등록</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Metric Statistics Cards -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-2 w-full">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div onclick="filterCategory('전체')" class="stat-card cursor-pointer bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-500 hover:shadow transition">
+        <div class="text-xs font-medium text-slate-500">전체 등록 판례</div>
+        <div class="text-2xl font-bold text-slate-900 mt-1" id="stat-total">0</div>
+        <div class="text-[11px] text-blue-600 font-medium mt-1">전체 보기 <i class="fa-solid fa-angle-right text-[9px]"></i></div>
+      </div>
+      <div onclick="filterCategory('연구비')" class="stat-card cursor-pointer bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-500 hover:shadow transition">
+        <div class="text-xs font-medium text-slate-500">🔬 R&D 연구비</div>
+        <div class="text-2xl font-bold text-emerald-600 mt-1" id="stat-rd">0</div>
+        <div class="text-[11px] text-slate-400 mt-1">풀링제·시약재료</div>
+      </div>
+      <div onclick="filterCategory('기술료')" class="stat-card cursor-pointer bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-500 hover:shadow transition">
+        <div class="text-xs font-medium text-slate-500">💡 기술료·지재권</div>
+        <div class="text-2xl font-bold text-amber-600 mt-1" id="stat-tech">0</div>
+        <div class="text-[11px] text-slate-400 mt-1">직무발명·스핀오프</div>
+      </div>
+      <div onclick="filterCategory('계약')" class="stat-card cursor-pointer bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-500 hover:shadow transition">
+        <div class="text-xs font-medium text-slate-500">🛒 계약·수의계약</div>
+        <div class="text-2xl font-bold text-indigo-600 mt-1" id="stat-contract">0</div>
+        <div class="text-[11px] text-slate-400 mt-1">쪼개기·스펙알박기</div>
+      </div>
+      <div onclick="filterCategory('복무·이해충돌')" class="stat-card cursor-pointer bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-500 hover:shadow transition">
+        <div class="text-xs font-medium text-slate-500">🚨 복무·이해충돌</div>
+        <div class="text-2xl font-bold text-rose-600 mt-1" id="stat-conduct">0</div>
+        <div class="text-[11px] text-slate-400 mt-1">대외활동·자문료</div>
+      </div>
+      <div onclick="filterCategory('적극행정')" class="stat-card cursor-pointer bg-white p-4 rounded-xl border border-slate-200 shadow-sm hover:border-blue-500 hover:shadow transition">
+        <div class="text-xs font-medium text-slate-500">🛡️ 적극행정 면책</div>
+        <div class="text-2xl font-bold text-sky-600 mt-1" id="stat-immunity">0</div>
+        <div class="text-[11px] text-slate-400 mt-1">사전컨설팅·면책</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filter & Search Controls -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 w-full">
+    <div class="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3">
+      <!-- Search Input -->
+      <div class="relative">
+        <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
+        <input type="text" id="searchInput" oninput="applyFilters()" placeholder="사건명, 대립 쟁점(예: 쪼개기, 풀링제, 직무발명, 스핀오프, 사전컨설팅, 자문료), 결정기관 검색..." class="w-full pl-11 pr-24 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
+        <div class="absolute right-3 top-2 flex items-center space-x-1">
+          <button onclick="toggleFavoriteOnly()" id="favFilterBtn" class="px-2.5 py-1 text-xs rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition flex items-center space-x-1">
+            <i class="fa-solid fa-star text-amber-400"></i>
+            <span id="favCount">0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Category & Status Filters -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-slate-100 text-xs">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <span class="text-slate-400 font-medium mr-1">분류:</span>
+          <button onclick="filterCategory('전체')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-900 text-white font-medium" data-cat="전체">전체</button>
+          <button onclick="filterCategory('연구비')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="연구비">🔬 연구비</button>
+          <button onclick="filterCategory('기술료')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="기술료">💡 기술료</button>
+          <button onclick="filterCategory('계약')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="계약">🛒 계약·조달</button>
+          <button onclick="filterCategory('복무·이해충돌')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="복무·이해충돌">🚨 복무·이해충돌</button>
+          <button onclick="filterCategory('적극행정')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="적극행정">🛡️ 적극행정</button>
+          <button onclick="filterCategory('괴롭힘·성비위')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="괴롭힘·성비위">👥 HR·갑질</button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-1">
+            <span class="text-slate-400 font-medium mr-1">판정:</span>
+            <button onclick="filterStatus('전체')" class="status-btn px-2.5 py-1 rounded-md bg-slate-800 text-white" data-status="전체">전체</button>
+            <button onclick="filterStatus('위법 인정')" class="status-btn px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 hover:bg-rose-100" data-status="위법 인정">위법 처분</button>
+            <button onclick="filterStatus('적법 면책')" class="status-btn px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100" data-status="적법 면책">적법·면책</button>
+            <button onclick="filterStatus('조건부 갈림')" class="status-btn px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 hover:bg-amber-100" data-status="조건부 갈림">조건부 갈림</button>
+          </div>
+          <!-- View Toggle -->
+          <div class="flex items-center border border-slate-200 rounded-lg p-0.5 bg-slate-50 ml-2">
+            <button onclick="setViewMode('card')" id="btnCardView" class="px-2.5 py-1 rounded-md bg-white shadow-xs text-slate-800 font-medium text-xs">
+              <i class="fa-solid fa-grip"></i>
+            </button>
+            <button onclick="setViewMode('table')" id="btnTableView" class="px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-800 text-xs">
+              <i class="fa-solid fa-table-list"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Area -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 w-full flex-1">
+    <div class="flex items-center justify-between mb-3 text-xs text-slate-500">
+      <div>검색 결과: <span id="resultCount" class="font-bold text-slate-800">0</span>건</div>
+      <button onclick="resetAllFilters()" class="hover:text-blue-600 transition flex items-center space-x-1">
+        <i class="fa-solid fa-rotate-left"></i>
+        <span>필터 초기화</span>
+      </button>
+    </div>
+
+    <!-- Card View Container -->
+    <div id="cardContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <!-- Dynamic cards rendered by JS -->
+    </div>
+
+    <!-- Table View Container -->
+    <div id="tableContainer" class="hidden bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+      <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider">
+            <tr>
+              <th class="py-3 px-3 w-16">번호</th>
+              <th class="py-3 px-3 w-24">분류</th>
+              <th class="py-3 px-4">사례명 및 핵심 내용</th>
+              <th class="py-3 px-4 w-48">핵심 대립 쟁점 (VS)</th>
+              <th class="py-3 px-3 w-28">최종 판정</th>
+              <th class="py-3 px-4">결정적 판단 기준</th>
+              <th class="py-3 px-3 w-20 text-center">상세</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-slate-100">
+            <!-- Dynamic rows rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Detail Modal -->
+  <div id="detailModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col">
+      <div class="p-6 border-b border-slate-100 flex items-start justify-between">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span id="modalCategory" class="px-2.5 py-0.5 text-xs font-semibold rounded-md">분류</span>
+            <span id="modalStatusBadge" class="px-2.5 py-0.5 text-xs font-semibold rounded-md">판정</span>
+            <span id="modalId" class="text-xs text-slate-400 font-mono">ID-00</span>
+          </div>
+          <h2 id="modalTitle" class="text-lg font-bold text-slate-900 mt-2">사례 제목</h2>
+        </div>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+      <div class="p-6 space-y-4 text-xs leading-relaxed">
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div class="text-slate-400 font-semibold mb-1 flex items-center space-x-1.5">
+            <i class="fa-solid fa-code-compare text-blue-500"></i>
+            <span>핵심 대립 쟁점 (경계선 딜레마)</span>
+          </div>
+          <div id="modalDilemma" class="text-sm font-bold text-slate-800"></div>
+        </div>
+
+        <div>
+          <div class="font-semibold text-slate-700 mb-1 flex items-center space-x-1.5">
+            <i class="fa-solid fa-file-lines text-slate-400"></i>
+            <span>사건 개요 및 사실관계</span>
+          </div>
+          <p id="modalFacts" class="text-slate-600 bg-white p-3 rounded-lg border border-slate-100"></p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 text-[11px]">
+          <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+            <span class="text-slate-400 font-medium">결정 기관:</span>
+            <div id="modalAuthority" class="font-semibold text-slate-700 mt-0.5"></div>
+          </div>
+          <div class="p-3 bg-slate-50 rounded-lg border border-slate-100">
+            <span class="text-slate-400 font-medium">법적·규정 근거:</span>
+            <div id="modalStatute" class="font-semibold text-slate-700 mt-0.5"></div>
+          </div>
+        </div>
+
+        <div class="bg-blue-50/60 p-4 rounded-xl border border-blue-100">
+          <div class="text-blue-700 font-bold mb-1 flex items-center space-x-1.5">
+            <i class="fa-solid fa-gavel text-blue-600"></i>
+            <span>최종 판정 및 결정적 판단 기준 (합·불합 분기점)</span>
+          </div>
+          <p id="modalRationale" class="text-slate-700 font-medium"></p>
+        </div>
+
+        <div class="bg-emerald-50/60 p-4 rounded-xl border border-emerald-100">
+          <div class="text-emerald-800 font-bold mb-1 flex items-center space-x-1.5">
+            <i class="fa-solid fa-lightbulb text-emerald-600"></i>
+            <span>💡 감사총괄자 실무 적용 체크포인트 (KITECH 적용)</span>
+          </div>
+          <p id="modalAction" class="text-emerald-950"></p>
+        </div>
+      </div>
+      <div class="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+        <button onclick="toggleFavoriteFromModal()" id="modalFavBtn" class="px-3 py-1.5 text-xs font-medium border border-slate-200 rounded-lg bg-white hover:bg-slate-100 transition flex items-center space-x-1.5">
+          <i class="fa-regular fa-star text-amber-500"></i>
+          <span>즐겨찾기 추가</span>
+        </button>
+        <button onclick="closeModal()" class="px-4 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition">닫기</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Application Logic -->
+  <script>
+    // Master Database Dataset
+    const initialCases = [
+      {
+        id: "RND-01",
+        category: "연구비",
+        title: "연구실 공용 계좌로 학생인건비를 취합해 인센티브로 재분배한 건",
+        dilemma: "연구실 자율 인센티브 분배 vs 학생인건비 풀링제 횡령·유용",
+        authority: "과학기술정보통신부 감사 / 대법원 확정판결",
+        statute: "국가연구개발혁신법 제13조, 과학기술분야 출연기관 학생연구원 운영규정",
+        status: "위법 인정",
+        facts: "연구책임자 A 교수는 학생연구원 전원의 동의를 받아 인건비를 공용 계좌로 이체받은 뒤, 기여도에 따라 자체 재분배하고 남은 잔액을 연구실 공용 물품 및 회식비로 사용함.",
+        rationale: "학생연구원들의 자발적 사전 동의가 있었고 전액 연구실을 위해 재분배되었다 하더라도, 학생연구원 계좌에 직접 지급된 인건비를 연구책임자나 대리인이 회수하여 관리하는 행위 자체가 풀링제 취지를 정면 위반한 부정 집행으로 판정. 부정이익 환수 및 제재부가금 3배 부과 처분 정당.",
+        action: "KITECH 학생연구원 계좌 전산 지급 내역과 연구실 내 비공식 통장/공용 엑셀 장부 존재 여부를 불시 모니터링하고, 학생연구원 대상 익명 설문조사 실시.",
+        keywords: ["#학생인건비", "#풀링제", "#공용통장", "#재분배"]
+      },
+      {
+        id: "RND-02",
+        category: "연구비",
+        title: "과제 종료 1개월 전 연구용 서버 및 고가 시약 대량 구매",
+        dilemma: "차년도 연구 연속성을 위한 조기 집행 vs 과제 종료 임박 예산 털어내기",
+        authority: "감사원 특정감사 / 과기정통부 처분요구",
+        statute: "국가연구개발사업 연구개발비 사용 기준",
+        status: "조건부 갈림",
+        facts: "과제 종료 25일을 앞두고 잔여 예산 4,000만 원으로 고성능 AI 서버와 시약 50세트를 구매하여 과제 종료 5일 전에 납품 완료 처리함.",
+        rationale: "해당 과제의 최종 연구목표 달성에 실제로 활용되었음이 연구노트나 최종보고서 데이터로 명백히 입증되지 않는 한 원칙적으로 불인정 환수 대상. 다만 연계 후속과제가 이미 확정되어 있고 사전 전담기관 승인을 득한 극소수 예외에 한해서만 적법 인정.",
+        action: "일상감사 시 '과제 종료 2개월 미만' 시점에 접수되는 2,000만 원 이상 연구장비·재료비 구매 건은 구매 사유서에 '당해 과제 실사용 계획서'를 의무 첨부하도록 반려 또는 조건부 의견 제시.",
+        keywords: ["#종료임박", "#서버구매", "#시약재료", "#예산소진"]
+      },
+      {
+        id: "TECH-01",
+        category: "기술료",
+        title: "연구원 스핀오프 창업기업 명의로 직무발명 특허를 단독 출원한 건",
+        dilemma: "창업기업의 독자적 R&D 성과 vs 기관 직무발명 사적 유출",
+        authority: "감사원 출연연 지재권 관리실태 감사",
+        statute: "발명진흥법 제10조(직무발명), KITECH 지식재산권 관리규정",
+        status: "조건부 갈림",
+        facts: "KITECH 연구원 B는 겸직 승인을 받아 스핀오프 기업을 창업한 후, 연구원에서 수행한 정부 R&D 과제 결과물과 유사한 신기술 특허 3건을 원내 신고 없이 창업기업 명의로 출원함.",
+        rationale: "특허 명세서상의 기술적 구성요소가 원내 과제 참여 중 작성된 연구노트나 중간보고서와 실질적으로 동일하거나 원내 인프라를 활용한 것으로 확인될 경우 '직무발명 사적 유출'로 판정되어 특허 권리 무상 양도 및 징계 요구. 퇴근 후 독립적 자금과 외부 설비로 개발했음을 완벽히 분리 입증한 경우에만 적법 인정.",
+        action: "원내 겸직 승인 창업기업 임직원의 최근 3개년 특허 출원 현황과 원내 R&D 과제 성과물을 크로스체크하는 지재권 전수 실태조사 실시.",
+        keywords: ["#스핀오프", "#직무발명", "#특허유출", "#창업기업"]
+      },
+      {
+        id: "TECH-02",
+        category: "기술료",
+        title: "기술료 분납 기업의 연체에 대해 담보권 행사 없이 기한만 연장해준 건",
+        dilemma: "중소기업 상생을 위한 채무 유예 vs 채권 관리 소홀 및 업무상 배임",
+        authority: "감사원 감사 처분 / 과기정통부 기관경고",
+        statute: "공공기관 재산관리 규정, 기술이전 및 사업화 촉진에 관한 법률",
+        status: "위법 인정",
+        facts: "기술이전 계약을 체결한 C기업이 경영 악화로 기술료 2억 원을 2년간 연체하자, 기술사업화 부서는 보증보험증권 청구나 법적 채권추심 없이 내부 품의만으로 납부 기한을 4차례 연속 연장해줌.",
+        rationale: "중소기업 지원 취지라 하더라도 계약서상 보증보험증권 미징구는 표준계약서 지침 위반이며, 기업의 재무실태 평가나 채권보전 조치 없이 무기한 연장하여 시효 소멸 위기를 초래한 행위는 직무태만 및 배임 행위로 감사원 주의·문책 처분.",
+        action: "기술료 분납 계약 시 이행보증보험증권 의무 제출 여부를 일상감사에서 전수 검증하고, 연체 6개월 초과 채권에 대한 법적 보전 조치 매뉴얼 확립.",
+        keywords: ["#기술료연체", "#보증보험", "#채권관리", "#납부유예"]
+      },
+      {
+        id: "CONTRACT-01",
+        category: "계약",
+        title: "동일 설비의 제어장치와 소프트웨어를 1,900만 원씩 2건으로 분할 수의계약",
+        dilemma: "공정별 전문성 분할 발주 vs 쪼개기 수의계약(경쟁입찰 회피)",
+        authority: "감사원 공공기관 계약실태 감사",
+        statute: "국가를 당사자로 하는 계약에 관한 법률 시행령 제68조(분할수의계약 금지)",
+        status: "위법 인정",
+        facts: "스마트공장 테스트베드 구축 사업에서 제어 하드웨어(1,950만 원)와 전용 제어 소프트웨어(1,800만 원)를 동일 업체와 2주 간격으로 각각 2천만 원 이하 1인 수의계약으로 체결함.",
+        rationale: "두 품목은 상호 결합되어야만 가동되는 단일 목적 설비이며, 예산 편성 시기 및 집행 부서가 동일하므로 통합 발주하여 일반경쟁에 부쳐야 함에도 2천만 원 수의계약 한도를 맞추기 위해 인위적으로 분할 발주한 고의성이 명백함.",
+        action: "동일 부서가 동일 업체와 3개월 이내에 체결한 2천만 원 미만 수의계약 건을 전산에서 자동 합산 경고하는 '쪼개기 방지 감사 필터' 구축.",
+        keywords: ["#쪼개기수의계약", "#분할발주", "#국가계약법", "#경쟁입찰회피"]
+      },
+      {
+        id: "CONTRACT-02",
+        category: "계약",
+        title: "과업지시서(RFP)에 특정 외산 제조사의 고유 규격과 모델명을 그대로 명시",
+        dilemma: "연구 특수성을 위한 단독 규격 vs 특정 업체 스펙 알박기(입찰 담합)",
+        authority: "국민권익위원회 공공조달 제도개선 권고 / 감사원 특정감사",
+        statute: "조달사업에 관한 법률, 공기업·준정부기관 계약사무규칙",
+        status: "위법 인정",
+        facts: "정밀 측정장비 구매 규격서 작성 시 특정 독일 제조사 D사의 카탈로그상 외형 치수, 고유 통신 프로토콜, 특허 기술을 그대로 복사해 넣어 타사 입찰 참가를 원천 차단함.",
+        rationale: "연구 수행상 대체 불가능한 특수 사유를 장비심의위원회에서 객관적으로 검증받지 않은 채 특정사 규격을 그대로 명시한 것은 유효경쟁을 제한하고 특정 업체에 특혜를 부여한 위법한 스펙 알박기로 판단.",
+        action: "과업지시서 일상감사 시 '특정 단독 모델 사양' 일치 여부를 전문 DB로 대조하고, 동등 이상(Equivalent) 규격 허용 문구 삽입을 의무화.",
+        keywords: ["#스펙알박기", "#과업지시서", "#단독규격", "#특혜의혹"]
+      },
+      {
+        id: "ETHICS-01",
+        category: "복무·이해충돌",
+        title: "연구원이 기술지원 대상 중소기업으로부터 사후 '기술자문료' 현금 수령",
+        dilemma: "전문가 사적 자문 대가 vs 직무관련자 금품 수수(청탁금지법 위반)",
+        authority: "국민권익위원회 유권해석 / 과기정통부 징계 처분",
+        statute: "부정청탁 및 금품등 수수의 금지에 관한 법률 제8조, 공직자의 이해충돌 방지법",
+        status: "위법 인정",
+        facts: "KITECH의 중소기업 실용화 지원과제를 통해 지원받은 E기업이 기술 애로사항을 해결해 준 연구원 F에게 감사의 뜻으로 사후 자문료 500만 원을 개인 통장으로 송금함.",
+        rationale: "연구원은 공식 과제 수행 범위 내의 활동이었으며 사전에 대외활동 신고나 겸직 승인을 받지 않음. 직무관련성이 명백한 기업으로부터 직접 대가를 수수한 행위는 청탁금지법 및 임직원 행동강령상 금품 수수로 정직 처분 및 과태료 부과.",
+        action: "중소기업 기술지원 과제 종료 후 수혜 기업과 참여 연구원 간의 금전 거래 및 사적 자문 계약 체결 여부를 정기 감사 점검 항목으로 지정.",
+        keywords: ["#자문료", "#직무관련자", "#청탁금지법", "#기술지원"]
+      },
+      {
+        id: "ETHICS-02",
+        category: "복무·이해충돌",
+        title: "연구실 팀장의 배우자가 대표로 있는 회사와 소모품 수의계약 체결",
+        dilemma: "최저가 견적 업체 선정 vs 이해충돌방지법상 수의계약 체결 제한",
+        authority: "국민권익위원회 처분 통보 / 경찰 고발",
+        statute: "공직자의 이해충돌 방지법 제12조(수의계약 체결 제한)",
+        status: "위법 인정",
+        facts: "연구실에서 사용하는 1,500만 원 상당의 소모품 구매 시 연구실 팀장의 배우자가 운영하는 업체가 가장 저렴한 견적을 제출하여 수의계약을 체결함. 사적 이해관계자 신고는 누락함.",
+        rationale: "견적 가격이 최저가였다 하더라도 이해충돌방지법상 공공기관 소속 고위공직자 및 계약 업무 관련자의 배우자 회사는 수의계약 체결이 원천 금지됨. 사적 이해관계자 미신고 및 수의계약 체결 제한 위반으로 과태료 및 중징계 의결.",
+        action: "원내 수의계약 체결 전 계약 상대방 대표자의 '임직원 사적 이해관계자 등록 여부'를 전산 자동 필터링하는 결재 시스템 구축.",
+        keywords: ["#이해충돌", "#배우자회사", "#수의계약제한", "#사적관계"]
+      },
+      {
+        id: "IMMUNITY-01",
+        category: "적극행정",
+        title: "장비 공급망 마비로 인한 납기 위기로 장비도입심의 절차를 사후 추인",
+        dilemma: "내부 규정 절차 위반 vs 국가 전략 R&D 연구 중단 방지 적극행정",
+        authority: "감사원 적극행정 면책 심사위원회 의결",
+        statute: "공공감사에 관한 법률 제23조의2(적극행정 면책), KITECH 적극행정 운영규정",
+        status: "적법 면책",
+        facts: "글로벌 반도체 공급망 차질로 특수 계측기 재고가 소진될 위기에서, 연구책임자는 통상 1개월이 소요되는 장비도입심의위를 거치지 않고 선구매를 단행한 뒤 3주 후 사후 추인 심의를 보완함.",
+        rationale: "절차상 규정 위반은 명백하나 ① 사적 유착이나 금품 수수가 전혀 없고 ② 선구매하지 않았을 경우 국가 전략 과제 전체가 6개월 이상 중단될 위기였음이 객관적으로 증명되었으며 ③ 사후 즉시 심의를 보완하여 투명성을 확보했으므로 '적극행정 면책' 요건 100% 충족 의결.",
+        action: "연구 현장의 긴급 상황 시 연구자가 독단으로 규정을 어기지 않고 감사가 사전에 보증해주는 '사전컨설팅 감사 제도' 활성화 홍보.",
+        keywords: ["#적극행정면책", "#공급망위기", "#사후추인", "#사전컨설팅"]
+      },
+      {
+        id: "HR-01",
+        category: "괴롭힘·성비위",
+        title: "저성과 부하 연구원을 핵심 과제 배정에서 제외하고 단순 잡무만 부여",
+        dilemma: "연구책임자의 R&D 과제 편성 재량 vs 표적 업무 배제(직장 내 괴롭힘)",
+        authority: "중앙노동위원회 판정 / 법원 판결",
+        statute: "근로기준법 제76조의2(직장 내 괴롭힘의 금지)",
+        status: "조건부 갈림",
+        facts: "팀장 G는 2년 연속 근무평정이 하위 5%인 연구원 H를 메인 정부과제에서 배제하고 행정 지원 및 문서 정리만 전담시킴.",
+        rationale: "연구원의 역량 미달에 따른 과제 재배치는 원칙적으로 연구책임자의 인사재량권 범위 내임. 다만 객관적 평가 기준과 역량 개선 기회(교육, 코칭)를 제공했는지, 아니면 인격 모독과 의도적 따돌림으로 고립시키기 위한 수단이었는지에 따라 위법 여부가 갈림.",
+        action: "연구 과제 배제나 업무 분장 변경 시 사적 감정에 의한 배제인지 객관적 성과 평가 및 면담 기록이 존재하는지 감사부 조사 시 필수 확인.",
+        keywords: ["#직장내괴롭힘", "#과제배제", "#인사재량", "#업무배분"]
+      }
+    ];
+
+    // State
+    let cases = [...initialCases];
+    let selectedCategory = "전체";
+    let selectedStatus = "전체";
+    let showFavoritesOnly = false;
+    let viewMode = "card";
+    let favorites = JSON.parse(localStorage.getItem('audit_db_favorites') || '[]');
+    let currentModalCase = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      updateStats();
+      applyFilters();
+      updateFavCount();
+    });
+
+    // Update Top Stat Numbers
+    function updateStats() {
+      document.getElementById('stat-total').innerText = cases.length;
+      document.getElementById('stat-rd').innerText = cases.filter(c => c.category === '연구비').length;
+      document.getElementById('stat-tech').innerText = cases.filter(c => c.category === '기술료').length;
+      document.getElementById('stat-contract').innerText = cases.filter(c => c.category === '계약').length;
+      document.getElementById('stat-conduct').innerText = cases.filter(c => c.category === '복무·이해충돌').length;
+      document.getElementById('stat-immunity').innerText = cases.filter(c => c.category === '적극행정').length;
+    }
+
+    // Filter Logic
+    function applyFilters() {
+      const query = document.getElementById('searchInput').value.toLowerCase().trim();
+
+      const filtered = cases.filter(item => {
+        // Category
+        if (selectedCategory !== "전체" && item.category !== selectedCategory) return false;
+        // Status
+        if (selectedStatus !== "전체" && item.status !== selectedStatus) return false;
+        // Favorite
+        if (showFavoritesOnly && !favorites.includes(item.id)) return false;
+        // Query
+        if (query) {
+          const matchTitle = item.title.toLowerCase().includes(query);
+          const matchDilemma = item.dilemma.toLowerCase().includes(query);
+          const matchFacts = item.facts.toLowerCase().includes(query);
+          const matchKeywords = item.keywords.some(k => k.toLowerCase().includes(query));
+          const matchId = item.id.toLowerCase().includes(query);
+          if (!matchTitle && !matchDilemma && !matchFacts && !matchKeywords && !matchId) return false;
+        }
+        return true;
+      });
+
+      document.getElementById('resultCount').innerText = filtered.length;
+
+      if (viewMode === 'card') {
+        renderCards(filtered);
+      } else {
+        renderTable(filtered);
+      }
+    }
+
+    // Render Cards
+    function renderCards(list) {
+      const container = document.getElementById('cardContainer');
+      container.innerHTML = '';
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-16 text-center text-slate-400">
+            <i class="fa-solid fa-folder-open text-4xl mb-3 text-slate-300"></i>
+            <p class="text-sm">조건에 맞는 감사 그레이존 판례가 없습니다.</p>
+          </div>
+        `;
+        return;
+      }
+
+      list.forEach(item => {
+        const isFav = favorites.includes(item.id);
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-2xl border border-slate-200 p-5 shadow-xs hover:shadow-md hover:border-blue-400 transition flex flex-col justify-between cursor-pointer";
+        card.onclick = () => openModal(item.id);
+
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center space-x-2">
+                <span class="px-2.5 py-0.5 text-[11px] font-semibold rounded-md ${getCategoryBadgeClass(item.category)}">${item.category}</span>
+                <span class="px-2.5 py-0.5 text-[11px] font-semibold rounded-md ${getStatusBadgeClass(item.status)}">${item.status}</span>
+              </div>
+              <button onclick="event.stopPropagation(); toggleFavorite('${item.id}')" class="text-slate-300 hover:text-amber-400 p-1">
+                <i class="${isFav ? 'fa-solid text-amber-400' : 'fa-regular'} fa-star text-sm"></i>
+              </button>
+            </div>
+
+            <h3 class="text-sm font-bold text-slate-900 leading-snug line-clamp-2 mb-2">${item.title}</h3>
+
+            <div class="bg-slate-50 rounded-xl p-2.5 border border-slate-100 mb-3 text-xs">
+              <div class="text-[10px] text-slate-400 font-semibold mb-0.5">핵심 쟁점 (VS)</div>
+              <div class="font-bold text-slate-800 line-clamp-1">${item.dilemma}</div>
+            </div>
+
+            <p class="text-xs text-slate-600 line-clamp-2 leading-relaxed mb-3">${item.facts}</p>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+            <span class="font-mono text-slate-400">${item.id}</span>
+            <span class="text-blue-600 font-medium hover:underline flex items-center space-x-1">
+              <span>상세 분석 보기</span>
+              <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Render Table
+    function renderTable(list) {
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      if (list.length === 0) {
+        tbody.innerHTML = `
+          <tr><td colspan="7" class="py-12 text-center text-slate-400">조건에 맞는 판례가 없습니다.</td></tr>
+        `;
+        return;
+      }
+
+      list.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/80 transition cursor-pointer";
+        tr.onclick = () => openModal(item.id);
+
+        tr.innerHTML = `
+          <td class="py-3 px-3 font-mono text-slate-500 font-medium">${item.id}</td>
+          <td class="py-3 px-3">
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold ${getCategoryBadgeClass(item.category)}">${item.category}</span>
+          </td>
+          <td class="py-3 px-4 font-semibold text-slate-900 max-w-xs truncate">${item.title}</td>
+          <td class="py-3 px-4 text-slate-700 font-medium max-w-xs truncate">${item.dilemma}</td>
+          <td class="py-3 px-3">
+            <span class="px-2 py-0.5 rounded text-[11px] font-semibold ${getStatusBadgeClass(item.status)}">${item.status}</span>
+          </td>
+          <td class="py-3 px-4 text-slate-600 max-w-sm truncate">${item.rationale}</td>
+          <td class="py-3 px-3 text-center">
+            <button onclick="event.stopPropagation(); openModal('${item.id}')" class="px-2.5 py-1 text-xs bg-slate-100 hover:bg-blue-50 hover:text-blue-600 rounded-md font-medium transition">
+              보기
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Detail Modal Handlers
+    function openModal(id) {
+      const item = cases.find(c => c.id === id);
+      if (!item) return;
+      currentModalCase = item;
+
+      document.getElementById('modalId').innerText = item.id;
+      document.getElementById('modalTitle').innerText = item.title;
+      document.getElementById('modalCategory').innerText = item.category;
+      document.getElementById('modalCategory').className = `px-2.5 py-0.5 text-xs font-semibold rounded-md ${getCategoryBadgeClass(item.category)}`;
+      document.getElementById('modalStatusBadge').innerText = item.status;
+      document.getElementById('modalStatusBadge').className = `px-2.5 py-0.5 text-xs font-semibold rounded-md ${getStatusBadgeClass(item.status)}`;
+      document.getElementById('modalDilemma').innerText = item.dilemma;
+      document.getElementById('modalFacts').innerText = item.facts;
+      document.getElementById('modalAuthority').innerText = item.authority;
+      document.getElementById('modalStatute').innerText = item.statute;
+      document.getElementById('modalRationale').innerText = item.rationale;
+      document.getElementById('modalAction').innerText = item.action;
+
+      updateModalFavBtn(item.id);
+      document.getElementById('detailModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+      currentModalCase = null;
+    }
+
+    // Favorites Logic
+    function toggleFavorite(id) {
+      if (favorites.includes(id)) {
+        favorites = favorites.filter(fav => fav !== id);
+      } else {
+        favorites.push(id);
+      }
+      localStorage.setItem('audit_db_favorites', JSON.stringify(favorites));
+      updateFavCount();
+      applyFilters();
+    }
+
+    function toggleFavoriteFromModal() {
+      if (!currentModalCase) return;
+      toggleFavorite(currentModalCase.id);
+      updateModalFavBtn(currentModalCase.id);
+    }
+
+    function updateModalFavBtn(id) {
+      const isFav = favorites.includes(id);
+      const btn = document.getElementById('modalFavBtn');
+      if (isFav) {
+        btn.innerHTML = `<i class="fa-solid fa-star text-amber-500"></i><span>즐겨찾기 해제</span>`;
+      } else {
+        btn.innerHTML = `<i class="fa-regular fa-star text-amber-500"></i><span>즐겨찾기 추가</span>`;
+      }
+    }
+
+    function updateFavCount() {
+      document.getElementById('favCount').innerText = favorites.length;
+    }
+
+    function toggleFavoriteOnly() {
+      showFavoritesOnly = !showFavoritesOnly;
+      const btn = document.getElementById('favFilterBtn');
+      if (showFavoritesOnly) {
+        btn.classList.add('bg-amber-50', 'border-amber-300', 'text-amber-800');
+      } else {
+        btn.classList.remove('bg-amber-50', 'border-amber-300', 'text-amber-800');
+      }
+      applyFilters();
+    }
+
+    // Category / Status Filter Helpers
+    function filterCategory(cat) {
+      selectedCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        if (btn.dataset.cat === cat) {
+          btn.className = "cat-btn px-3 py-1.5 rounded-lg bg-slate-900 text-white font-medium";
+        } else {
+          btn.className = "cat-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200";
+        }
+      });
+      applyFilters();
+    }
+
+    function filterStatus(status) {
+      selectedStatus = status;
+      document.querySelectorAll('.status-btn').forEach(btn => {
+        if (btn.dataset.status === status) {
+          btn.className = "status-btn px-2.5 py-1 rounded-md bg-slate-800 text-white";
+        } else {
+          btn.className = "status-btn px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200";
+        }
+      });
+      applyFilters();
+    }
+
+    function resetAllFilters() {
+      document.getElementById('searchInput').value = '';
+      showFavoritesOnly = false;
+      document.getElementById('favFilterBtn').classList.remove('bg-amber-50', 'border-amber-300', 'text-amber-800');
+      filterCategory('전체');
+      filterStatus('전체');
+    }
+
+    function setViewMode(mode) {
+      viewMode = mode;
+      const cardBtn = document.getElementById('btnCardView');
+      const tableBtn = document.getElementById('btnTableView');
+      const cardContainer = document.getElementById('cardContainer');
+      const tableContainer = document.getElementById('tableContainer');
+
+      if (mode === 'card') {
+        cardBtn.className = "px-2.5 py-1 rounded-md bg-white shadow-xs text-slate-800 font-medium text-xs";
+        tableBtn.className = "px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-800 text-xs";
+        cardContainer.classList.remove('hidden');
+        tableContainer.classList.add('hidden');
+      } else {
+        tableBtn.className = "px-2.5 py-1 rounded-md bg-white shadow-xs text-slate-800 font-medium text-xs";
+        cardBtn.className = "px-2.5 py-1 rounded-md text-slate-500 hover:text-slate-800 text-xs";
+        cardContainer.classList.add('hidden');
+        tableContainer.classList.remove('hidden');
+      }
+      applyFilters();
+    }
+
+    // Badge styling
+    function getCategoryBadgeClass(cat) {
+      switch(cat) {
+        case '연구비': return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+        case '기술료': return 'bg-amber-50 text-amber-700 border border-amber-200';
+        case '계약': return 'bg-indigo-50 text-indigo-700 border border-indigo-200';
+        case '복무·이해충돌': return 'bg-rose-50 text-rose-700 border border-rose-200';
+        case '적극행정': return 'bg-sky-50 text-sky-700 border border-sky-200';
+        case '괴롭힘·성비위': return 'bg-purple-50 text-purple-700 border border-purple-200';
+        default: return 'bg-slate-100 text-slate-700';
+      }
+    }
+
+    function getStatusBadgeClass(status) {
+      switch(status) {
+        case '위법 인정': return 'bg-rose-100 text-rose-800 border border-rose-300';
+        case '적법 면책': return 'bg-emerald-100 text-emerald-800 border border-emerald-300';
+        case '조건부 갈림': return 'bg-amber-100 text-amber-800 border border-amber-300';
+        default: return 'bg-slate-100 text-slate-700';
+      }
+    }
+
+    // Export Data JSON
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cases, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "kitech_audit_grayzone_cases.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function openAddModal() {
+      alert("신규 판례 등록 양식 기능은 관리자 권한 로그인 후 제공됩니다.");
+    }
+  </script>
+</body>
+</html>
