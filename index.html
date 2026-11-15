@@ -90,7 +90,7 @@
         <div class="flex items-center space-x-2 text-xs font-bold text-slate-800">
           <i class="fa-solid fa-layer-group text-blue-600"></i>
           <span>KITECH 4-Tier 다층 공인 근거 체계 (Evidence Hierarchy) 현황</span>
-          <span class="hidden md:inline text-[11px] font-normal text-slate-400 pl-1.5 border-l border-slate-200 ml-0.5">카드를 누르면 해당 Tier만 · 다시 누르면 해제 (아래 분류와 조합됨)</span>
+          <span class="hidden md:inline text-[11px] font-normal text-slate-400 pl-1.5 border-l border-slate-200 ml-0.5">카드를 누르면 해당 Tier만 · 다시 누르면 해제 (아래 분류·판정과 AND 조합)</span>
         </div>
         <div class="flex items-center space-x-2">
           <span class="text-[11px] text-slate-400 hidden sm:inline">710건 전수 공인 출처 1:1 매핑 완료</span>
@@ -801,14 +801,23 @@
     }
 
     // Category / Status Filter Helpers: HR before Immunity (Tier 선택은 유지하고 조합만 갱신)
+    // 이미 선택된 분류를 다시 누르면 '전체'로 해제 (Tier 카드와 동일한 토글 규칙)
     function filterCategory(cat) {
-      selectedCategory = cat;
+      if (cat === "전체") {
+        selectedCategory = "전체";
+      } else {
+        selectedCategory = (selectedCategory === cat) ? "전체" : cat;
+      }
       syncFilterUI();
       applyFilters();
     }
 
     function filterStatus(status) {
-      selectedStatus = status;
+      if (status === "전체") {
+        selectedStatus = "전체";
+      } else {
+        selectedStatus = (selectedStatus === status) ? "전체" : status;
+      }
       syncFilterUI();
       applyFilters();
     }
