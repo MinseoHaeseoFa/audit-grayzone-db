@@ -306,16 +306,20 @@
             </div>
             
             <div class="pt-2 border-t border-slate-200/60 space-y-1.5">
-              <div class="flex flex-wrap gap-1.5 items-center">
-                <a id="modalAuthorityGoogleLink" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 px-2.5 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700 font-medium transition shadow-xs">
+              <div class="grid grid-cols-2 gap-1.5 sm:flex sm:flex-wrap sm:items-center">
+                <a id="modalPrecLink" href="#" target="_blank" rel="noopener noreferrer" style="display:none" class="inline-flex items-center justify-center space-x-1 px-2.5 py-1 text-xs rounded bg-slate-800 text-white hover:bg-slate-700 font-medium transition shadow-xs whitespace-nowrap">
+                  <i class="fa-solid fa-scale-balanced text-[10px]"></i>
+                  <span>판결 원문(법제처)</span>
+                </a>
+                <a id="modalAuthorityGoogleLink" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center space-x-1 px-2.5 py-1 text-xs rounded bg-blue-600 text-white hover:bg-blue-700 font-medium transition shadow-xs whitespace-nowrap">
                   <i class="fa-brands fa-google text-[10px]"></i>
                   <span>구글 원문 검색</span>
                 </a>
-                <a id="modalAuthorityNaverLink" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center space-x-1 px-2.5 py-1 text-xs rounded bg-emerald-600 text-white hover:bg-emerald-700 font-medium transition shadow-xs">
+                <a id="modalAuthorityNaverLink" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center space-x-1 px-2.5 py-1 text-xs rounded bg-emerald-600 text-white hover:bg-emerald-700 font-medium transition shadow-xs whitespace-nowrap">
                   <span class="font-bold text-[10px]">N</span>
                   <span>네이버 법률 검색</span>
                 </a>
-                <button id="modalCopyQueryBtn" type="button" onclick="copyModalQuery()" class="inline-flex items-center space-x-1 px-2.5 py-1 text-xs rounded bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 font-medium transition cursor-pointer">
+                <button id="modalCopyQueryBtn" type="button" onclick="copyModalQuery()" class="inline-flex items-center justify-center space-x-1 px-2.5 py-1 text-xs rounded bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 font-medium transition cursor-pointer whitespace-nowrap">
                   <i class="fa-regular fa-copy text-[10px]"></i>
                   <span id="modalCopyQueryBtnLabel">검색어 복사</span>
                 </button>
@@ -592,18 +596,34 @@
       document.getElementById('modalAction').innerText = item.action;
 
       // Clickable Official Authority Links
+      const precLink = document.getElementById('modalPrecLink');
       const googleLink = document.getElementById('modalAuthorityGoogleLink');
       const naverLink = document.getElementById('modalAuthorityNaverLink');
-      if (googleLink && item.url) googleLink.href = item.url;
-      if (naverLink && item.naver_url) naverLink.href = item.naver_url;
-      // Tier 1(사법 판례)은 url이 법제처 국가법령정보센터 판결 상세로 직결되므로 버튼 표기를 대상에 맞춘다
+      const searchQuery = item.search_query || item.authority || '';
+      // Tier 1(사법 판례): url이 법제처 판결 원문 상세로 직결되므로 [판결 원문] 자리를 따로 두고 4개 버튼을 모두 노출한다
+      const isPrec = !!(item.url && item.url.indexOf('law.go.kr/LSW/precInfoP') !== -1);
+      if (precLink) {
+        if (isPrec) {
+          precLink.href = item.url;
+          precLink.title = item.url_label || '법제처 국가법령정보센터 판결 원문';
+          precLink.style.display = '';
+        } else {
+          precLink.href = '#';
+          precLink.removeAttribute('title');
+          precLink.style.display = 'none';
+        }
+      }
       if (googleLink) {
-        const isPrec = !!(item.url && item.url.indexOf('law.go.kr/LSW/precInfoP') !== -1);
+        googleLink.href = isPrec
+          ? `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`
+          : (item.url || `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`);
+        googleLink.title = '구글에서 이 사례의 원문·근거 검색';
         const gIcon = googleLink.querySelector('i');
         const gLabel = googleLink.querySelector('span');
-        if (gIcon) gIcon.className = isPrec ? 'fa-solid fa-scale-balanced text-[10px]' : 'fa-brands fa-google text-[10px]';
-        if (gLabel) gLabel.innerText = isPrec ? '판결 원문(법제처)' : '구글 원문 검색';
+        if (gIcon) gIcon.className = 'fa-brands fa-google text-[10px]';
+        if (gLabel) gLabel.innerText = '구글 원문 검색';
       }
+      if (naverLink) naverLink.href = item.naver_url || `https://search.naver.com/search.naver?query=${encodeURIComponent(searchQuery)}`;
 
       updateModalFavBtn(item.id);
       document.getElementById('detailModal').classList.remove('hidden');
