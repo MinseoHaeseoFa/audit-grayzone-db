@@ -74,7 +74,7 @@
           <div class="px-3 py-1.5 rounded-lg bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium">
             <span class="text-amber-400 mr-1">●</span> 조건부 갈림 <strong class="text-white ml-0.5" id="stat-status-split">156</strong>건
           </div>
-          <button class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition flex items-center space-x-1.5 shadow-sm ml-1">
+          <button onclick="event.stopPropagation(); resetAllFilters()" title="Tier·분류·판정·검색 필터를 한 번에 초기화" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition flex items-center space-x-1.5 shadow-sm ml-1">
             <span>전체 보기</span>
             <i class="fa-solid fa-arrow-rotate-left text-[10px]"></i>
           </button>
@@ -90,37 +90,44 @@
         <div class="flex items-center space-x-2 text-xs font-bold text-slate-800">
           <i class="fa-solid fa-layer-group text-blue-600"></i>
           <span>KITECH 4-Tier 다층 공인 근거 체계 (Evidence Hierarchy) 현황</span>
+          <span class="hidden md:inline text-[11px] font-normal text-slate-400 pl-1.5 border-l border-slate-200 ml-0.5">카드를 누르면 해당 Tier만 · 다시 누르면 해제 (아래 분류와 조합됨)</span>
         </div>
-        <span class="text-[11px] text-slate-400">710건 전수 공인 출처 1:1 매핑 완료</span>
+        <div class="flex items-center space-x-2">
+          <span class="text-[11px] text-slate-400 hidden sm:inline">710건 전수 공인 출처 1:1 매핑 완료</span>
+          <button onclick="resetAllFilters()" id="tierResetBtn" title="Tier·분류·판정·검색 필터를 한 번에 초기화" class="px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 text-[11px] font-bold transition flex items-center space-x-1 whitespace-nowrap">
+            <i class="fa-solid fa-arrow-rotate-left text-[10px]"></i>
+            <span>전체 보기</span>
+          </button>
+        </div>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-        <div onclick="filterTier(1)" class="cursor-pointer p-2.5 rounded-lg bg-blue-50/60 border border-blue-100 hover:border-blue-400 transition flex items-center justify-between">
+        <div onclick="filterTier(1)" data-tier-card="1" role="button" aria-pressed="false" title="Tier 1 사법 판례만 보기 (다시 누르면 해제)" class="tier-card cursor-pointer p-2.5 rounded-lg bg-blue-50/60 border border-blue-100 hover:border-blue-400 transition flex items-center justify-between">
           <div>
             <div class="font-bold text-blue-800">Tier 1: 사법 판례</div>
             <div class="text-[11px] text-blue-600">대법원 확정 판결</div>
           </div>
-          <span class="text-base font-black text-blue-700">71건</span>
+          <span class="text-base font-black text-blue-700" id="stat-tier-1">0건</span>
         </div>
-        <div onclick="filterTier(2)" class="cursor-pointer p-2.5 rounded-lg bg-purple-50/60 border border-purple-100 hover:border-purple-400 transition flex items-center justify-between">
+        <div onclick="filterTier(2)" data-tier-card="2" role="button" aria-pressed="false" title="Tier 2 공인 처분만 보기 (다시 누르면 해제)" class="tier-card cursor-pointer p-2.5 rounded-lg bg-purple-50/60 border border-purple-100 hover:border-purple-400 transition flex items-center justify-between">
           <div>
             <div class="font-bold text-purple-800">Tier 2: 공인 처분</div>
             <div class="text-[11px] text-purple-600">감사원·권익위·중노위</div>
           </div>
-          <span class="text-base font-black text-purple-700">384건</span>
+          <span class="text-base font-black text-purple-700" id="stat-tier-2">0건</span>
         </div>
-        <div onclick="filterTier(3)" class="cursor-pointer p-2.5 rounded-lg bg-emerald-50/60 border border-emerald-100 hover:border-emerald-400 transition flex items-center justify-between">
+        <div onclick="filterTier(3)" data-tier-card="3" role="button" aria-pressed="false" title="Tier 3 정부 유권해석만 보기 (다시 누르면 해제)" class="tier-card cursor-pointer p-2.5 rounded-lg bg-emerald-50/60 border border-emerald-100 hover:border-emerald-400 transition flex items-center justify-between">
           <div>
             <div class="font-bold text-emerald-800">Tier 3: 정부 유권해석</div>
             <div class="text-[11px] text-emerald-600">기재부·과기부·고용부</div>
           </div>
-          <span class="text-base font-black text-emerald-700">211건</span>
+          <span class="text-base font-black text-emerald-700" id="stat-tier-3">0건</span>
         </div>
-        <div onclick="filterTier(4)" class="cursor-pointer p-2.5 rounded-lg bg-amber-50/60 border border-amber-100 hover:border-amber-400 transition flex items-center justify-between">
+        <div onclick="filterTier(4)" data-tier-card="4" role="button" aria-pressed="false" title="Tier 4 출연연 규정만 보기 (다시 누르면 해제)" class="tier-card cursor-pointer p-2.5 rounded-lg bg-amber-50/60 border border-amber-100 hover:border-amber-400 transition flex items-center justify-between">
           <div>
             <div class="font-bold text-amber-800">Tier 4: 출연연 규정</div>
             <div class="text-[11px] text-amber-600">NST 감사위·생기원 가이드</div>
           </div>
-          <span class="text-base font-black text-amber-700">44건</span>
+          <span class="text-base font-black text-amber-700" id="stat-tier-4">0건</span>
         </div>
       </div>
     </div>
@@ -379,6 +386,7 @@
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       updateStats();
+      syncFilterUI();
       applyFilters();
       updateFavCount();
     });
@@ -399,6 +407,12 @@
       if (elLegal) elLegal.innerText = cases.filter(c => c.status === '적법 면책').length;
       const elSplit = document.getElementById('stat-status-split');
       if (elSplit) elSplit.innerText = cases.filter(c => c.status === '조건부 갈림').length;
+
+      // 4-Tier 카드 건수 실제 데이터 동기화
+      [1, 2, 3, 4].forEach(t => {
+        const el = document.getElementById('stat-tier-' + t);
+        if (el) el.innerText = cases.filter(c => Number(c.tier) === t).length + '건';
+      });
     }
 
     // Filter Logic
@@ -406,6 +420,8 @@
       const query = document.getElementById('searchInput').value.toLowerCase().trim();
 
       const filtered = cases.filter(item => {
+        // Tier (4-Tier 공인 근거 체계) — 분류·판정·즐겨찾기·검색어와 AND 조합
+        if (selectedTier !== "전체" && String(item.tier) !== String(selectedTier)) return false;
         // Category
         if (selectedCategory !== "전체" && item.category !== selectedCategory) return false;
         // Status
@@ -426,12 +442,27 @@
       });
 
       document.getElementById('resultCount').innerText = filtered.length;
+      renderFilterTag();
 
       if (viewMode === 'card') {
         renderCards(filtered);
       } else {
         renderTable(filtered);
       }
+    }
+
+    // 빈 결과일 때 어떤 조합이 적용됐고 교집합이 몇 건인지 설명
+    function comboSummaryText() {
+      const parts = activeFilterParts().map(p => p.label);
+      if (parts.length === 0) return '';
+      let s = '적용 조건: ' + parts.join(' · ');
+      if (String(selectedTier) !== "전체" && selectedCategory !== "전체") {
+        const tierTotal = cases.filter(c => String(c.tier) === String(selectedTier)).length;
+        const catTotal = cases.filter(c => c.category === selectedCategory).length;
+        const cross = cases.filter(c => String(c.tier) === String(selectedTier) && c.category === selectedCategory).length;
+        s += ` (참고: ${TIER_LABELS[String(selectedTier)]} ${tierTotal}건 × ${selectedCategory} ${catTotal}건 교집합 ${cross}건)`;
+      }
+      return s;
     }
 
     // Render Cards
@@ -443,7 +474,9 @@
         container.innerHTML = `
           <div class="col-span-full py-16 text-center text-slate-400">
             <i class="fa-solid fa-folder-open text-4xl mb-3 text-slate-300"></i>
-            <p class="text-sm">조건에 맞는 감사 그레이존 사례가 없습니다.</p>
+            <p class="text-sm">선택한 조합에 해당하는 감사 그레이존 사례가 없습니다.</p>
+            <p class="text-xs mt-2 text-slate-400">${escapeHtml(comboSummaryText())}</p>
+            <button onclick="resetAllFilters()" class="mt-4 px-3.5 py-1.5 text-xs font-bold rounded-lg bg-slate-800 hover:bg-slate-700 text-white transition">필터 전체 초기화</button>
           </div>
         `;
         return;
@@ -632,38 +665,151 @@
       applyFilters();
     }
 
-    // Category / Status Filter Helpers: HR before Immunity
-    function filterCategory(cat) {
-      selectedCategory = cat;
+    // ── 조합 필터(Tier × 분류 × 판정) UI 상수 ─────────────────
+    const TIER_LABELS = {
+      "1": "Tier 1: 사법 판례",
+      "2": "Tier 2: 공인 처분",
+      "3": "Tier 3: 정부 유권해석",
+      "4": "Tier 4: 출연연 규정"
+    };
+
+    const CATEGORY_ICON = {
+      "연구비": "🔬", "기술료": "💡", "계약": "🛒",
+      "복무·이해충돌": "🚨", "괴롭힘·성비위": "👥", "적극행정": "🛡️"
+    };
+
+    const TIER_CARD_CLASS = {
+      1: {
+        base: "tier-card cursor-pointer p-2.5 rounded-lg bg-blue-50/60 border border-blue-100 hover:border-blue-400 transition flex items-center justify-between",
+        active: "tier-card cursor-pointer p-2.5 rounded-lg bg-blue-100 border-2 border-blue-600 ring-2 ring-blue-300 ring-offset-1 shadow-md transition flex items-center justify-between"
+      },
+      2: {
+        base: "tier-card cursor-pointer p-2.5 rounded-lg bg-purple-50/60 border border-purple-100 hover:border-purple-400 transition flex items-center justify-between",
+        active: "tier-card cursor-pointer p-2.5 rounded-lg bg-purple-100 border-2 border-purple-600 ring-2 ring-purple-300 ring-offset-1 shadow-md transition flex items-center justify-between"
+      },
+      3: {
+        base: "tier-card cursor-pointer p-2.5 rounded-lg bg-emerald-50/60 border border-emerald-100 hover:border-emerald-400 transition flex items-center justify-between",
+        active: "tier-card cursor-pointer p-2.5 rounded-lg bg-emerald-100 border-2 border-emerald-600 ring-2 ring-emerald-300 ring-offset-1 shadow-md transition flex items-center justify-between"
+      },
+      4: {
+        base: "tier-card cursor-pointer p-2.5 rounded-lg bg-amber-50/60 border border-amber-100 hover:border-amber-400 transition flex items-center justify-between",
+        active: "tier-card cursor-pointer p-2.5 rounded-lg bg-amber-100 border-2 border-amber-600 ring-2 ring-amber-300 ring-offset-1 shadow-md transition flex items-center justify-between"
+      }
+    };
+
+    const CATEGORY_CARD_CLASS = {
+      "연구비": {
+        base: "stat-card cursor-pointer bg-white p-4 rounded-xl border border-slate-200 shadow-xs hover:border-emerald-500 hover:shadow transition",
+        active: "stat-card cursor-pointer bg-emerald-50 p-4 rounded-xl border-2 border-emerald-500 ring-2 ring-emerald-200 shadow-md transition"
+      },
+      "기술료": {
+        base: "stat-card cursor-pointer bg-white p-4 rounded-xl border border-slate-200 shadow-xs hover:border-amber-500 hover:shadow transition",
+        active: "stat-card cursor-pointer bg-amber-50 p-4 rounded-xl border-2 border-amber-500 ring-2 ring-amber-200 shadow-md transition"
+      },
+      "계약": {
+        base: "stat-card cursor-pointer bg-white p-4 rounded-xl border border-slate-200 shadow-xs hover:border-indigo-500 hover:shadow transition",
+        active: "stat-card cursor-pointer bg-indigo-50 p-4 rounded-xl border-2 border-indigo-500 ring-2 ring-indigo-200 shadow-md transition"
+      },
+      "복무·이해충돌": {
+        base: "stat-card cursor-pointer bg-white p-4 rounded-xl border border-slate-200 shadow-xs hover:border-rose-500 hover:shadow transition",
+        active: "stat-card cursor-pointer bg-rose-50 p-4 rounded-xl border-2 border-rose-500 ring-2 ring-rose-200 shadow-md transition"
+      },
+      "괴롭힘·성비위": {
+        base: "stat-card cursor-pointer bg-white p-4 rounded-xl border border-slate-200 shadow-xs hover:border-purple-500 hover:shadow transition",
+        active: "stat-card cursor-pointer bg-purple-50 p-4 rounded-xl border-2 border-purple-500 ring-2 ring-purple-200 shadow-md transition"
+      },
+      "적극행정": {
+        base: "stat-card cursor-pointer bg-white p-4 rounded-xl border border-slate-200 shadow-xs hover:border-sky-500 hover:shadow transition",
+        active: "stat-card cursor-pointer bg-sky-50 p-4 rounded-xl border-2 border-sky-500 ring-2 ring-sky-200 shadow-md transition"
+      }
+    };
+
+    const STATUS_BTN_CLASS = {
+      "전체": { base: "status-btn px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200", active: "status-btn px-2.5 py-1 rounded-md bg-slate-800 text-white" },
+      "위법 인정": { base: "status-btn px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 hover:bg-rose-100", active: "status-btn px-2.5 py-1 rounded-md bg-rose-600 text-white" },
+      "적법 면책": { base: "status-btn px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100", active: "status-btn px-2.5 py-1 rounded-md bg-emerald-600 text-white" },
+      "조건부 갈림": { base: "status-btn px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 hover:bg-amber-100", active: "status-btn px-2.5 py-1 rounded-md bg-amber-500 text-white" }
+    };
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    }
+
+    // 모든 필터 UI(4-Tier 카드·분류 카드·분류 버튼·판정 버튼·현재 조합 태그)를 상태값에 맞춰 한 번에 갱신
+    function syncFilterUI() {
+      document.querySelectorAll('[data-tier-card]').forEach(card => {
+        const t = card.getAttribute('data-tier-card');
+        const on = String(selectedTier) === String(t);
+        if (TIER_CARD_CLASS[t]) card.className = on ? TIER_CARD_CLASS[t].active : TIER_CARD_CLASS[t].base;
+        card.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+
+      document.querySelectorAll('.stat-card').forEach(card => {
+        const c = card.getAttribute('data-cat');
+        if (!CATEGORY_CARD_CLASS[c]) return;
+        const on = selectedCategory === c;
+        card.className = on ? CATEGORY_CARD_CLASS[c].active : CATEGORY_CARD_CLASS[c].base;
+        card.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+
       document.querySelectorAll('.cat-btn').forEach(btn => {
-        if (btn.dataset.cat === cat) {
+        if (btn.dataset.cat === selectedCategory) {
           btn.className = "cat-btn px-3 py-1.5 rounded-lg bg-slate-900 text-white font-medium";
         } else {
           btn.className = "cat-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200";
         }
       });
-      const tagMap = {
-        "전체": "전체 보기",
-        "연구비": "🔬 R&D 연구비 (100선)",
-        "기술료": "💡 기술료·지재권 (100선)",
-        "계약": "🛒 계약·조달 (100선)",
-        "복무·이해충돌": "🚨 복무·이해충돌 (100선)",
-        "괴롭힘·성비위": "👥 HR 갑질·괴롭힘 (100선)",
-        "적극행정": "🛡️ 적극행정 면책 (100선)"
+
+      document.querySelectorAll('.status-btn').forEach(btn => {
+        const s = btn.dataset.status;
+        const set = STATUS_BTN_CLASS[s] || STATUS_BTN_CLASS["전체"];
+        btn.className = (s === selectedStatus) ? set.active : set.base;
+      });
+
+      renderFilterTag();
+    }
+
+    // 현재 적용된 조합 필터를 한 줄로 표시 (예: Tier 1: 사법 판례 · 🛡️ 적극행정)
+    function activeFilterParts() {
+      const parts = [];
+      if (String(selectedTier) !== "전체") parts.push({ kind: 'tier', label: TIER_LABELS[String(selectedTier)] });
+      if (selectedCategory !== "전체") parts.push({ kind: 'cat', label: (CATEGORY_ICON[selectedCategory] || '') + ' ' + selectedCategory });
+      if (selectedStatus !== "전체") parts.push({ kind: 'status', label: '판정: ' + selectedStatus });
+      if (showFavoritesOnly) parts.push({ kind: 'fav', label: '⭐ 즐겨찾기만' });
+      const q = (document.getElementById('searchInput').value || '').trim();
+      if (q) parts.push({ kind: 'query', label: '검색: ' + q });
+      return parts;
+    }
+
+    function renderFilterTag() {
+      const el = document.getElementById('activeFilterTag');
+      if (!el) return;
+      const parts = activeFilterParts();
+      if (parts.length === 0) {
+        el.innerHTML = '전체 보기';
+        return;
+      }
+      const chipClass = {
+        tier: 'px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200',
+        cat: 'px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200',
+        status: 'px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200',
+        fav: 'px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200',
+        query: 'px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200'
       };
-      document.getElementById('activeFilterTag').innerText = tagMap[cat] || cat;
+      el.innerHTML = '<span class="text-slate-400 mr-1">적용 필터:</span>' +
+        parts.map(p => `<span class="font-semibold ${chipClass[p.kind]}">${escapeHtml(p.label)}</span>`).join('<span class="text-slate-300 mx-1">·</span>');
+    }
+
+    // Category / Status Filter Helpers: HR before Immunity (Tier 선택은 유지하고 조합만 갱신)
+    function filterCategory(cat) {
+      selectedCategory = cat;
+      syncFilterUI();
       applyFilters();
     }
 
     function filterStatus(status) {
       selectedStatus = status;
-      document.querySelectorAll('.status-btn').forEach(btn => {
-        if (btn.dataset.status === status) {
-          btn.className = "status-btn px-2.5 py-1 rounded-md bg-slate-800 text-white";
-        } else {
-          btn.className = "status-btn px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200";
-        }
-      });
+      syncFilterUI();
       applyFilters();
     }
 
@@ -717,16 +863,24 @@
       return 'Tier 4 원내규정';
     }
 
+    // 4-Tier 카드 클릭: 선택 → 해당 Tier만(카테고리·판정과 AND 조합) / 같은 카드 재클릭 → 전체로 해제
     function filterTier(tier) {
-      selectedTier = tier;
-      document.querySelectorAll('.tier-btn').forEach(btn => {
-        const bTier = btn.getAttribute('data-tier');
-        if (String(bTier) === String(tier)) {
-          btn.className = "tier-btn px-2.5 py-1 rounded-md bg-slate-800 text-white font-medium";
-        } else {
-          btn.className = "tier-btn px-2 py-1 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200 font-medium";
-        }
-      });
+      selectedTier = (String(selectedTier) === String(tier)) ? "전체" : tier;
+      syncFilterUI();
+      applyFilters();
+    }
+
+    // 전체 초기화: Tier + 분류 + 판정 + 즐겨찾기 + 검색어를 한 번에 해제
+    function resetAllFilters() {
+      selectedTier = "전체";
+      selectedCategory = "전체";
+      selectedStatus = "전체";
+      showFavoritesOnly = false;
+      const si = document.getElementById('searchInput');
+      if (si) si.value = '';
+      const favBtn = document.getElementById('favFilterBtn');
+      if (favBtn) favBtn.classList.remove('bg-amber-50', 'border-amber-300', 'text-amber-800');
+      syncFilterUI();
       applyFilters();
     }
 
