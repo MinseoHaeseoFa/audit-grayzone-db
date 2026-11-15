@@ -596,6 +596,14 @@
       const naverLink = document.getElementById('modalAuthorityNaverLink');
       if (googleLink && item.url) googleLink.href = item.url;
       if (naverLink && item.naver_url) naverLink.href = item.naver_url;
+      // Tier 1(사법 판례)은 url이 법제처 국가법령정보센터 판결 상세로 직결되므로 버튼 표기를 대상에 맞춘다
+      if (googleLink) {
+        const isPrec = !!(item.url && item.url.indexOf('law.go.kr/LSW/precInfoP') !== -1);
+        const gIcon = googleLink.querySelector('i');
+        const gLabel = googleLink.querySelector('span');
+        if (gIcon) gIcon.className = isPrec ? 'fa-solid fa-scale-balanced text-[10px]' : 'fa-brands fa-google text-[10px]';
+        if (gLabel) gLabel.innerText = isPrec ? '판결 원문(법제처)' : '구글 원문 검색';
+      }
 
       updateModalFavBtn(item.id);
       document.getElementById('detailModal').classList.remove('hidden');
