@@ -33,8 +33,12 @@
           <p class="text-xs text-slate-400 mt-0.5">한국생산기술연구원(KITECH) 내부감사 지원 시스템</p>
         </div>
       </div>
-      <div class="flex items-center space-x-2">
-        <button onclick="exportData()" class="px-3.5 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition flex items-center space-x-1.5 shadow-sm">
+      <div class="flex items-center gap-2 flex-wrap">
+        <button onclick="openGuide()" title="사용설명서 열기" class="px-3.5 py-2 text-xs font-medium bg-blue-600 hover:bg-blue-500 text-white rounded-lg border border-blue-500 transition flex items-center justify-center gap-1.5 shadow-sm whitespace-nowrap shrink-0">
+          <i class="fa-solid fa-book-open"></i>
+          <span>사용설명서</span>
+        </button>
+        <button onclick="exportData()" class="px-3.5 py-2 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition flex items-center justify-center gap-1.5 shadow-sm whitespace-nowrap shrink-0">
           <i class="fa-solid fa-download"></i>
           <span>데이터 내보내기</span>
         </button>
@@ -371,6 +375,27 @@
         </button>
         <button onclick="closeModal()" class="px-4 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition">닫기</button>
       </div>
+    </div>
+  </div>
+
+  <!-- 사용설명서 인페이지 모달 (팝업 차단·모바일 fallback) -->
+  <div id="guideModal" class="fixed inset-0 z-[60] bg-slate-900/70 backdrop-blur-sm hidden items-center justify-center p-2 sm:p-4">
+    <div class="bg-white w-full max-w-[1100px] h-[92vh] sm:h-[90vh] rounded-xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+      <div class="flex items-center justify-between gap-3 px-4 sm:px-5 py-3 bg-slate-900 text-white shrink-0">
+        <div class="flex items-center gap-2 min-w-0">
+          <i class="fa-solid fa-book-open text-blue-300"></i>
+          <span class="text-sm font-semibold truncate">감사 그레이존 사례 DB 사용설명서</span>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <a href="./guide.html" target="_blank" rel="noopener" class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 transition whitespace-nowrap">
+            <i class="fa-solid fa-up-right-from-square"></i><span>새 창으로</span>
+          </a>
+          <button type="button" onclick="closeGuideModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-blue-600 hover:bg-blue-500 text-white rounded-lg transition whitespace-nowrap">
+            <i class="fa-solid fa-xmark"></i><span>닫기</span>
+          </button>
+        </div>
+      </div>
+      <iframe id="guideFrame" title="감사 그레이존 사례 DB 사용설명서" src="about:blank" class="flex-1 w-full border-0 bg-white"></iframe>
     </div>
   </div>
 
@@ -940,6 +965,68 @@
       downloadAnchor.click();
       downloadAnchor.remove();
     }
+
+    // ── 사용설명서(guide.html) 열기: PC는 팝업 창, 차단·모바일은 인페이지 모달 ──
+    const GUIDE_SRC = './guide.html';
+
+    function isSmallViewport() {
+      return window.matchMedia('(max-width: 1024px)').matches ||
+             /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    }
+
+    function openGuide() {
+      if (!isSmallViewport()) {
+        let win = null;
+        try {
+          win = window.open(GUIDE_SRC, 'auditGuidePopup', 'width=1020,height=880,scrollbars=yes,resizable=yes');
+        } catch (e) { win = null; }
+        if (win && !win.closed) {
+          try { win.focus(); } catch (e) {}
+          return;
+        }
+      }
+      openGuideModal();
+    }
+
+    function openGuideModal() {
+      const modal = document.getElementById('guideModal');
+      const frame = document.getElementById('guideFrame');
+      if (!modal || !frame) return;
+      if (!frame.getAttribute('src') || frame.getAttribute('src') === 'about:blank') {
+        frame.setAttribute('src', GUIDE_SRC);
+      }
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.style.overflow = 'hidden';
+      const btn = modal.querySelector('button[onclick="closeGuideModal()"]');
+      if (btn) btn.focus();
+    }
+
+    function closeGuideModal() {
+      const modal = document.getElementById('guideModal');
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.style.overflow = '';
+    }
+
+    // 안내서 안의 '창 닫기' 버튼(iframe)에서 온 닫기 요청
+    window.addEventListener('message', function (e) {
+      const frame = document.getElementById('guideFrame');
+      if (frame && e.source === frame.contentWindow) {
+        if (e.data === 'audit-guide-close' || (e.data && e.data.type === 'audit-guide-close')) {
+          closeGuideModal();
+        }
+      }
+    });
+
+    // ESC: 사용설명서 모달 → 사례 상세 모달 순으로 닫기
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      const gm = document.getElementById('guideModal');
+      if (gm && !gm.classList.contains('hidden')) { closeGuideModal(); return; }
+      if (typeof closeModal === 'function') closeModal();
+    });
   </script>
 </body>
 </html>

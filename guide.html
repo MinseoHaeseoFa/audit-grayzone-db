@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>감사 그레이존 사례 DB 사용설명서 | KITECH 내부감사 지원 시스템</title>
+<style>
+  :root{
+    --navy:#0f172a;
+    --navy2:#1e293b;
+    --blue:#1d4ed8;
+    --blue-l:#2563eb;
+    --ink:#334155;
+    --ink-strong:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --soft:#f8fafc;
+  }
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:#eef2f7;
+    color:var(--ink);
+    font-family:"Pretendard","Pretendard Variable",-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR","Noto Sans CJK KR",sans-serif;
+    font-size:15px;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--blue);text-decoration:none;}
+  a:hover{text-decoration:underline;}
+
+  /* ── 상단 도구 막대 ─────────────────────────── */
+  .toolbar{
+    background:var(--navy);
+    color:#e2e8f0;
+    border-bottom:1px solid #1e293b;
+    position:sticky;
+    top:0;
+    z-index:30;
+  }
+  .toolbar-inner{
+    max-width:920px;
+    margin:0 auto;
+    padding:10px 18px;
+    overflow:hidden;
+  }
+  .toolbar-title{
+    float:left;
+    padding-top:5px;
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+    color:#fff;
+    white-space:nowrap;
+  }
+  .toolbar-actions{
+    float:right;
+    white-space:nowrap;
+  }
+  .btn{
+    display:inline-block;
+    font-family:inherit;
+    font-size:12.5px;
+    font-weight:700;
+    line-height:1;
+    padding:8px 13px;
+    border-radius:8px;
+    border:1px solid #334155;
+    background:#1e293b;
+    color:#e2e8f0;
+    cursor:pointer;
+    margin-left:6px;
+    transition:background .15s ease,border-color .15s ease;
+  }
+  .btn:hover{background:#334155;border-color:#475569;}
+  .btn-primary{background:var(--blue-l);border-color:var(--blue-l);color:#fff;}
+  .btn-primary:hover{background:#3b82f6;border-color:#3b82f6;}
+
+  /* ── 본문 카드 ─────────────────────────────── */
+  .page{
+    max-width:920px;
+    margin:0 auto;
+    background:#fff;
+    box-shadow:0 1px 3px rgba(15,23,42,.06),0 12px 32px rgba(15,23,42,.06);
+    border-radius:0 0 14px 14px;
+    overflow:hidden;
+  }
+
+  /* ── 히어로 ────────────────────────────────── */
+  .hero{
+    background:linear-gradient(135deg,#0f172a 0%,#16243f 55%,#1e2a5a 100%);
+    color:#fff;
+    padding:34px 34px 30px;
+  }
+  .hero-kicker{
+    display:inline-block;
+    font-size:11.5px;
+    font-weight:700;
+    letter-spacing:.02em;
+    color:#93c5fd;
+    background:rgba(59,130,246,.16);
+    border:1px solid rgba(96,165,250,.35);
+    border-radius:999px;
+    padding:4px 11px;
+    margin-bottom:14px;
+  }
+  .hero h1{
+    margin:0 0 8px;
+    font-size:27px;
+    line-height:1.35;
+    font-weight:800;
+    letter-spacing:-0.02em;
+    color:#fff;
+  }
+  .hero p{margin:0;color:#cbd5e1;font-size:14px;}
+  .hero-meta{margin-top:18px;font-size:12.5px;color:#94a3b8;}
+  .hero-meta span{display:inline-block;margin-right:14px;}
+  .hero-meta b{color:#e2e8f0;font-weight:700;}
+
+  .wrap{padding:0 34px 42px;}
+
+  /* ── 3분 요약 ──────────────────────────────── */
+  .quick{
+    margin-top:-18px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:12px;
+    box-shadow:0 6px 18px rgba(15,23,42,.07);
+    padding:18px 20px;
+    position:relative;
+  }
+  .quick h2{
+    margin:0 0 10px;
+    font-size:13px;
+    font-weight:800;
+    color:var(--blue);
+    letter-spacing:.01em;
+  }
+  .quick ol{
+    margin:0;
+    padding-left:20px;
+    font-size:14px;
+    color:var(--ink);
+  }
+  .quick ol li{margin:4px 0;}
+  .quick ol li b{color:var(--ink-strong);}
+
+  /* ── 목차 ──────────────────────────────────── */
+  .toc{
+    margin:26px 0 8px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:var(--soft);
+    padding:16px 20px;
+  }
+  .toc h2{
+    margin:0 0 8px;
+    font-size:12px;
+    font-weight:800;
+    color:var(--muted);
+    letter-spacing:.06em;
+  }
+  .toc ol{margin:0;padding-left:18px;font-size:14px;}
+  .toc li{margin:3px 0;}
+  .toc li a{font-weight:600;color:#1e3a8a;}
+
+  /* ── 섹션 ──────────────────────────────────── */
+  section{margin-top:40px;}
+  .sec-head{
+    display:table;
+    width:100%;
+    border-bottom:1px solid var(--line);
+    padding-bottom:10px;
+    margin-bottom:18px;
+  }
+  .sec-num{
+    display:table-cell;
+    width:26px;
+    vertical-align:top;
+  }
+  .sec-num span{
+    display:block;
+    width:26px;height:26px;
+    border-radius:7px;
+    background:var(--blue);
+    color:#fff;
+    font-size:13px;
+    font-weight:800;
+    text-align:center;
+    line-height:26px;
+    margin-top:3px;
+  }
+  .sec-head h2{
+    display:table-cell;
+    vertical-align:top;
+    padding-left:10px;
+    margin:0;
+    font-size:19px;
+    font-weight:800;
+    color:var(--ink-strong);
+    letter-spacing:-0.02em;
+    line-height:1.45;
+  }
+  h3{
+    font-size:15.5px;
+    font-weight:800;
+    color:var(--ink-strong);
+    margin:26px 0 8px;
+    letter-spacing:-0.01em;
+  }
+  h4{
+    font-size:14px;
+    font-weight:800;
+    color:#1e293b;
+    margin:18px 0 6px;
+  }
+  p{margin:10px 0;}
+  ul,ol{padding-left:20px;}
+  li{margin:4px 0;}
+
+  /* ── 표 ────────────────────────────────────── */
+  .tbl-wrap{overflow-x:auto;margin:14px 0 6px;}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13.5px;
+    background:#fff;
+  }
+  caption{
+    caption-side:top;
+    text-align:left;
+    font-size:12px;
+    color:var(--muted);
+    padding-bottom:6px;
+  }
+  th,td{
+    border:1px solid var(--line);
+    padding:9px 11px;
+    vertical-align:top;
+    text-align:left;
+  }
+  thead th{
+    background:#0f172a;
+    color:#fff;
+    font-weight:700;
+    font-size:12.5px;
+    border-color:#0f172a;
+    white-space:nowrap;
+  }
+  tbody tr:nth-child(even) td{background:#f8fafc;}
+  td.num{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:700;color:var(--ink-strong);}
+  td.c{text-align:center;white-space:nowrap;}
+  .t1{border-left:4px solid #2563eb!important;}
+  .t2{border-left:4px solid #7c3aed!important;}
+  .t3{border-left:4px solid #059669!important;}
+  .t4{border-left:4px solid #d97706!important;}
+  .tag{
+    display:inline-block;
+    font-size:11.5px;
+    font-weight:700;
+    padding:1px 7px;
+    border-radius:5px;
+    white-space:nowrap;
+  }
+  .tag-t1{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;}
+  .tag-t2{background:#ede9fe;color:#5b21b6;border:1px solid #ddd6fe;}
+  .tag-t3{background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;}
+  .tag-t4{background:#fef3c7;color:#92400e;border:1px solid #fde68a;}
+  .tag-bad{background:#ffe4e6;color:#9f1239;border:1px solid #fecdd3;}
+  .tag-ok{background:#d1fae5;color:#065f46;border:1px solid #a7f3d0;}
+  .tag-mid{background:#fef3c7;color:#92400e;border:1px solid #fde68a;}
+
+  /* ── 강조 박스 ─────────────────────────────── */
+  .box{
+    border-radius:10px;
+    padding:13px 16px;
+    margin:14px 0;
+    font-size:13.5px;
+    border:1px solid;
+  }
+  .box p:first-child{margin-top:0;}
+  .box p:last-child{margin-bottom:0;}
+  .box .box-t{
+    display:block;
+    font-weight:800;
+    font-size:12.5px;
+    margin-bottom:4px;
+  }
+  .note{background:#eff6ff;border-color:#bfdbfe;color:#1e3a8a;}
+  .note .box-t{color:#1d4ed8;}
+  .warn{background:#fffbeb;border-color:#fde68a;color:#78350f;}
+  .warn .box-t{color:#b45309;}
+  .tip{background:#ecfdf5;border-color:#a7f3d0;color:#064e3b;}
+  .tip .box-t{color:#047857;}
+
+  /* ── 그림 ──────────────────────────────────── */
+  figure{
+    margin:18px 0 6px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+    background:#f1f5f9;
+  }
+  figure a{display:block;line-height:0;}
+  figure img{display:block;width:100%;height:auto;}
+  figcaption{
+    font-size:12px;
+    color:var(--muted);
+    padding:8px 12px;
+    border-top:1px solid var(--line);
+    background:#fff;
+    line-height:1.6;
+  }
+  figcaption b{color:#334155;}
+
+  /* ── 단계 ──────────────────────────────────── */
+  .step{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:18px 20px 6px;
+    margin:22px 0;
+    background:#fff;
+  }
+  .step-head{margin-bottom:6px;}
+  .step-badge{
+    display:inline-block;
+    background:var(--navy);
+    color:#fff;
+    font-size:11.5px;
+    font-weight:800;
+    letter-spacing:.04em;
+    padding:3px 9px;
+    border-radius:5px;
+    margin-right:8px;
+    vertical-align:2px;
+  }
+  .step-head h3{
+    display:inline;
+    margin:0;
+    font-size:15.5px;
+  }
+  .step .lead{
+    font-size:13.5px;
+    color:#475569;
+    margin:6px 0 0;
+  }
+
+  /* ── 버튼 설명 칩 ──────────────────────────── */
+  .chiprow{margin:10px 0 4px;}
+  .chip{
+    display:inline-block;
+    font-size:12px;
+    font-weight:700;
+    padding:2px 9px;
+    border-radius:6px;
+    margin:0 6px 6px 0;
+    white-space:nowrap;
+  }
+  .chip-law{background:#1e293b;color:#fff;}
+  .chip-g{background:#2563eb;color:#fff;}
+  .chip-n{background:#059669;color:#fff;}
+  .chip-copy{background:#fff;color:#334155;border:1px solid #cbd5e1;}
+
+  /* ── FAQ ───────────────────────────────────── */
+  .faq{border:1px solid var(--line);border-radius:10px;padding:14px 17px;margin:12px 0;background:var(--soft);}
+  .faq .q{
+    font-size:13.5px;
+    font-weight:800;
+    color:var(--ink-strong);
+    margin:0 0 6px;
+  }
+  .faq .q span{color:var(--blue);margin-right:6px;}
+  .faq .a{margin:0;font-size:13.5px;color:#475569;}
+
+  /* ── 푸터 ──────────────────────────────────── */
+  footer{
+    margin-top:44px;
+    border-top:1px solid var(--line);
+    padding-top:16px;
+    font-size:12px;
+    color:var(--muted);
+  }
+  footer p{margin:4px 0;}
+
+  /* ── 좁은 화면 ─────────────────────────────── */
+  @media (max-width:640px){
+    body{font-size:14.5px;}
+    .hero{padding:26px 20px 24px;}
+    .hero h1{font-size:21px;}
+    .wrap{padding:0 20px 30px;}
+    .quick{margin-top:-14px;padding:15px 16px;}
+    .toolbar-inner{padding:9px 14px;}
+    .btn{font-size:12px;padding:7px 10px;}
+  }
+
+  /* ── 인쇄(PDF) ─────────────────────────────── */
+  @media print{
+    @page{
+      size:A4;
+      margin:14mm 13mm 15mm;
+    }
+    body{background:#fff;font-size:9.9pt;line-height:1.58;}
+    section{margin-top:16px;}
+    h3{margin:16px 0 6px;}
+    h4{margin:12px 0 4px;}
+    p{margin:7px 0;}
+    .faq{padding:10px 14px;margin:9px 0;}
+    .box{margin:10px 0;padding:10px 13px;}
+    .toc{margin:14px 0 4px;padding:12px 16px;}
+    .quick{padding:14px 16px;}
+    .toolbar,.no-print{display:none!important;}
+    .page{max-width:none;box-shadow:none;border-radius:0;margin:0;}
+    .hero{padding:16px 0 12px;background:#fff;color:#0f172a;border-bottom:2px solid #0f172a;}
+    .hero-kicker{color:#1d4ed8;background:#eff6ff;border-color:#bfdbfe;}
+    .hero h1{font-size:19pt;color:#0f172a;}
+    .hero p{color:#334155;}
+    .hero-meta{color:#64748b;margin-top:8px;}
+    .hero-meta b{color:#0f172a;}
+    .wrap{padding:0;}
+    .quick{margin-top:12px;box-shadow:none;border:1px solid #cbd5e1;page-break-inside:avoid;}
+    .toc{page-break-inside:avoid;}
+    section{page-break-before:auto;margin-top:20px;}
+    .sec-head{page-break-after:avoid;}
+    h3,h4{page-break-after:avoid;}
+    figure,.box,.faq{page-break-inside:avoid;}
+    .step{page-break-inside:auto;}
+    .step-head{page-break-after:avoid;}
+    figure{border-color:#cbd5e1;}
+    figure.fig-portrait a{text-align:center;}
+    figure.fig-portrait img{width:82%;margin:0 auto;}
+    figcaption{background:#fff;}
+    thead{display:table-header-group;}
+    caption{page-break-after:avoid;}
+    tr{page-break-inside:avoid;}
+    .tbl-wrap{overflow:visible;}
+    table{font-size:9pt;page-break-inside:auto;}
+    th,td{padding:5px 7px;}
+    a{color:#1d4ed8;}
+    .page-break{page-break-before:always;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ─────────────── 상단 도구 막대 ─────────────── -->
+<div class="toolbar no-print">
+  <div class="toolbar-inner">
+    <span class="toolbar-title">감사 그레이존 사례 DB 사용설명서</span>
+    <div class="toolbar-actions">
+      <a class="btn btn-primary" role="button" href="#" onclick="window.print();return false;"> 인쇄 / PDF 저장</a>
+      <a class="btn" role="button" href="#" onclick="closeWindow();return false;">✕ 창 닫기</a>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- ─────────────── 히어로 ─────────────── -->
+  <header class="hero">
+    <span class="hero-kicker">사용설명서 · User Guide</span>
+    <h1>공공·출연연 감사 그레이존 사례 DB<br>이렇게 쓰시면 됩니다</h1>
+    <p>“이 사안, 처분해야 하나요, 면책해야 하나요?” — 판단이 갈리는 710건의 결론과 그 분기점을<br>검색 3초, 클릭 2번으로 확인하는 실무 안내서입니다.</p>
+    <div class="hero-meta">
+      <span>수록 <b>710건</b></span>
+      <span>4-Tier 공인 근거 <b>36 · 282 · 362 · 30</b></span>
+      <span>6대 분야 <b>110×5 + 160</b></span>
+      <span>기준일 <b>2026.11.17</b></span>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- ─────────────── 3분 요약 ─────────────── -->
+    <div class="quick">
+      <h2>3분 요약 — 이 세 가지만 기억하세요</h2>
+      <ol>
+        <li><b>찾기</b> — 검색창에 업무 단어를 그대로 칩니다. (<code>쪼개기</code>, <code>풀링제</code>, <code>자문료</code>, <code>사전컨설팅</code>)</li>
+        <li><b>좁히기</b> — 4-Tier 카드와 6대 분야 카드를 눌러 조건을 겹칩니다. 두 조건은 함께(AND) 적용됩니다.</li>
+        <li><b>확인하기</b> — 사례 카드를 누르면 상세 팝업이 열립니다. <b>[판결 원문(법제처)]</b> · <b>[구글 원문 검색]</b> · <b>[네이버 법률 검색]</b>으로 원문을 반드시 대조합니다.</li>
+      </ol>
+    </div>
+
+    <!-- ─────────────── 목차 ─────────────── -->
+    <nav class="toc no-print">
+      <h2>목 차</h2>
+      <ol>
+        <li><a href="#s1">이 데이터베이스는 무엇인가요?</a></li>
+        <li><a href="#s2">화면 한눈에 보기</a></li>
+        <li><a href="#s3">실전 사용법 3단계</a></li>
+        <li><a href="#s4">실무 활용 팁 &amp; 주의사항</a></li>
+      </ol>
+    </nav>
+
+    <!-- ═══════════════ 1. 무엇인가요 ═══════════════ -->
+    <section id="s1">
+      <div class="sec-head">
+        <div class="sec-num"><span>1</span></div>
+        <h2>이 데이터베이스는 무엇인가요?</h2>
+      </div>
+
+      <p>
+        공공기관과 정부출연연구기관 감사에서 <b>“적발(위법 처분)”과 “적극행정(면책)” 사이에서 결론이 갈리는 사안</b>만 모은
+        실무 사례 데이터베이스입니다. 총 <b>710건</b>이 수록되어 있고, 각 사례는 △대립 쟁점(딜레마) △사실관계 △최종 판정
+        △결정적 판단 기준 △감사인 실무 체크포인트 △공인 근거로 정리되어 있습니다.
+      </p>
+
+      <div class="box note">
+        <span class="box-t">이 DB가 답하는 질문</span>
+        “우리 기관에서 같은 일이 벌어졌다면, <b>무엇을 확인해야</b> 하고 <b>어디서 결론이 갈리는지</b>” — 즉 결론 자체보다
+        <b>분기점(판단 기준)</b>을 알려주는 도구입니다. 감사조서의 ‘판단 근거’ 난을 채울 때 바로 인용할 수 있습니다.
+      </div>
+
+      <h3>① 규모와 판정 분포 — 710건은 이렇게 구성되어 있습니다</h3>
+      <div class="tbl-wrap">
+        <table>
+          <caption>표 1. 전체 710건의 최종 판정 분포 (상단 통합 아카이브 카드의 숫자와 동일)</caption>
+          <thead>
+            <tr><th style="width:26%">최종 판정</th><th style="width:14%">건수</th><th>의미와 활용</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="tag tag-bad">위법 처분</span></td>
+              <td class="num">537</td>
+              <td>감사에서 지적·처분으로 이어진 사안. <b>“무엇이 문제였는지”</b>를 확인해 사전 예방점검 항목을 뽑을 때 씁니다.</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-ok">적법·면책</span></td>
+              <td class="num">132</td>
+              <td>문제가 제기됐지만 적법·면책으로 정리된 사안. <b>“어디까지가 허용되는지”</b>를 확인해 과잉 지적을 피할 때 씁니다.</td>
+            </tr>
+            <tr>
+              <td><span class="tag tag-mid">조건부 갈림</span></td>
+              <td class="num">41</td>
+              <td>절차·증빙 보완 여부에 따라 결론이 갈린 사안. <b>“무엇을 갖추면 되는지”</b>를 뽑아 사전컨설팅 답변에 씁니다.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:13px;color:#64748b;margin-top:6px;">
+        같은 유형의 사안도 사실관계에 따라 결론이 갈립니다. 그래서 이 DB는 결론(처분/면책)보다 <b>분기점</b>을 먼저 읽도록 구성되어 있습니다.
+      </p>
+
+      <h3>② 4-Tier 공인 근거 체계 — 근거의 ‘급’이 다릅니다</h3>
+      <p>
+        모든 사례에는 <b>공인 근거</b>가 1:1로 붙어 있고, 근거의 성격에 따라 4개 등급(Tier)으로 나뉩니다.
+        Tier가 높을수록(1에 가까울수록) 구속력과 설득력이 큽니다. 상단 배너의 카드에 표시되는 건수가 실제 수록 건수입니다.
+      </p>
+      <div class="tbl-wrap">
+        <table>
+          <caption>표 2. 4-Tier 다층 공인 근거 체계 (2026.11.17 실서비스 화면 기준)</caption>
+          <thead>
+            <tr><th style="width:20%">등급</th><th style="width:30%">근거의 성격</th><th style="width:11%">건수</th><th>어디에 쓰나</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="t1"><span class="tag tag-t1">Tier 1: 사법 판례</span><br><span style="font-size:12px;color:#64748b;">대법원 확정 판결</span></td>
+              <td>법원의 확정 판결(대법원·고등법원·행정법원). 사안의 분기점을 직접 판시한 선도 판례를 연결.</td>
+              <td class="num">36</td>
+              <td><b>가장 강한 근거.</b> 감사조서·의견서에서 1순위로 인용. 36건 전부 <b>[판결 원문(법제처)]</b> 버튼이 있어 판결문 상세페이지로 바로 갑니다.</td>
+            </tr>
+            <tr>
+              <td class="t2"><span class="tag tag-t2">Tier 2: 공인 처분</span><br><span style="font-size:12px;color:#64748b;">감사원·권익위·중노위</span></td>
+              <td>감사원 처분요구서, 국민권익위원회 의결례, 중앙노동위원회 판정례 등 준사법적 공인 처분.</td>
+              <td class="num">282</td>
+              <td>감사 실무와 결이 같은 처분례. <b>처분 수위·제재 판단</b>의 근거로 인용.</td>
+            </tr>
+            <tr>
+              <td class="t3"><span class="tag tag-t3">Tier 3: 정부 유권해석</span><br><span style="font-size:12px;color:#64748b;">기재부·과기부·고용부</span></td>
+              <td>부처 고시·행정규칙, 부처 공식 질의회신 등 해석 기준.</td>
+              <td class="num">362</td>
+              <td>가장 많은 비중. <b>비목·집행 기준</b>처럼 실무 규칙을 확인할 때 인용.</td>
+            </tr>
+            <tr>
+              <td class="t4"><span class="tag tag-t4">Tier 4: 출연연 규정</span><br><span style="font-size:12px;color:#64748b;">NST 감사위·생기원 가이드</span></td>
+              <td>NST 감사위원회 지적사례와 KITECH 내부규정·일상감사 체크포인트.</td>
+              <td class="num">30</td>
+              <td>건수는 적지만 <b>우리 기관에 곧바로 적용</b>되는 기준. 규정 위반 여부 판단에 사용.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="box warn">
+        <span class="box-t">신뢰도의 서열을 헷갈리지 마세요</span>
+        Tier 1~4는 <b>“좋고 나쁨”이 아니라 “성격”</b>입니다. 법리 다툼에는 Tier 1(판결)이, 우리 기관 규정 위반 여부에는 Tier 4(원내규정)가
+        더 직접적인 근거가 됩니다. 감사조서에는 <b>상위 법령 + 원내 규정을 병기</b>하는 것이 원칙입니다.
+      </div>
+
+      <h3>③ 6대 분야 — 어디를 먼저 볼지 정해 줍니다</h3>
+      <div class="tbl-wrap">
+        <table>
+          <caption>표 3. 6대 핵심 감사 영역과 수록 건수</caption>
+          <thead>
+            <tr><th style="width:26%">분야</th><th style="width:11%">건수</th><th>카드에 표시된 대표 이슈</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>R&amp;D 연구비</td><td class="num">110</td><td>풀링제 · 연구수당 · 시약</td></tr>
+            <tr><td>기술료·지재권</td><td class="num">110</td><td>직무발명 · 스핀오프 · 연체</td></tr>
+            <tr><td>계약·조달</td><td class="num">110</td><td>쪼개기 · 스펙알박기 · 대여</td></tr>
+            <tr><td>복무·이해충돌</td><td class="num">110</td><td>사외자문료 · 가족계약</td></tr>
+            <tr><td>HR 갑질·괴롭힘</td><td class="num">160</td><td>과제배제 · 보복전보 · 폭언</td></tr>
+            <tr><td>적극행정 면책</td><td class="num">110</td><td>사전컨설팅 · 납기면책</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:13px;color:#64748b;margin-top:6px;">
+        HR(갑질·괴롭힘) 분야만 160건으로, 나머지 다섯 분야(각 110건)보다 50건 더 많습니다. 성희롱·괴롭힘은 사안마다 결론이 갈리는 폭이 커서 참고할 사례가 더 필요하다는 점을 감안해 두시면 좋습니다.
+      </p>
+
+      <div class="box tip">
+        <span class="box-t">사례는 ‘유형화된 실무 예시’입니다</span>
+        특정 개인을 지목하지 않는 유형화된 서술로 되어 있습니다. 사안의 구조를 익히고 우리 기관 사안에 대입하는 용도로 쓰시고,
+        인용할 때는 반드시 팝업의 <b>공인 근거 원문</b>을 함께 확인하세요.
+      </div>
+    </section>
+
+    <!-- ═══════════════ 2. 화면 한눈에 보기 ═══════════════ -->
+    <section id="s2">
+      <div class="sec-head">
+        <div class="sec-num"><span>2</span></div>
+        <h2>화면 한눈에 보기</h2>
+      </div>
+
+      <p>접속 주소는 <b>https://audit-grayzone-db.vercel.app/</b> 입니다. 첫 화면에서 8개 영역만 알면 나머지는 저절로 됩니다.</p>
+
+      <figure>
+        <a href="./guide-img-01-main.png" target="_blank" rel="noopener">
+          <img src="./guide-img-01-main.png" alt="감사 그레이존 사례 DB 메인 화면 — 상단 통계, 4-Tier 카드, 6대 분야 카드, 검색창, 필터, 사례 카드">
+        </a>
+        <figcaption><b>화면 1.</b> 메인 화면 전체(상단) — ①헤더 ②통합 아카이브 카드 ③4-Tier 배너 ④6대 분야 카드 ⑤검색창 ⑥필터 줄 ⑦결과 줄 ⑧사례 카드. <span class="no-print">(클릭하면 원본 크기로 열립니다.)</span></figcaption>
+      </figure>
+
+      <div class="tbl-wrap">
+        <table>
+          <caption>표 4. 화면 구성 요소와 역할</caption>
+          <thead>
+            <tr><th style="width:6%">No</th><th style="width:22%">영역</th><th>하는 일</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="c">①</td><td><b>상단 헤더</b></td><td>앱 이름과 제목. 오른쪽 <b>[데이터 내보내기]</b>는 710건 전체를 JSON 파일로 내려받습니다(연구·분석용).</td></tr>
+            <tr><td class="c">②</td><td><b>통합 아카이브 카드</b></td><td>전체 <b>710건</b>과 판정 3색(위법 처분 537 · 적법·면책 132 · 조건부 갈림 41)을 보여 줍니다. 오른쪽 <b>[전체 보기]</b>를 누르면 모든 필터·검색어가 한 번에 초기화됩니다.</td></tr>
+            <tr><td class="c">③</td><td><b>4-Tier 배너</b></td><td>Tier 1~4 카드(36 · 282 · 362 · 30건). <b>카드를 누르면 그 Tier만</b> 남고, <b>같은 카드를 다시 누르면 해제</b>됩니다. 우측 상단에도 전체 보기 버튼이 있습니다.</td></tr>
+            <tr><td class="c">④</td><td><b>6대 분야 카드</b></td><td>분야별 건수(110 · 110 · 110 · 110 · 160 · 110). 카드를 누르면 그 분야만 남습니다. Tier와 함께 누르면 <b>두 조건이 겹쳐서</b> 좁혀집니다.</td></tr>
+            <tr><td class="c">⑤</td><td><b>검색창</b></td><td>사건명·대립 쟁점·사실관계·공인 근거·키워드·사례ID를 대상으로 <b>입력 즉시</b> 걸러 줍니다. 오른쪽 <b>★(숫자)</b>는 즐겨찾기만 보기입니다.</td></tr>
+            <tr><td class="c">⑥</td><td><b>필터 줄</b></td><td>왼쪽은 <b>분류</b>(전체 보기 · 연구비 · 기술료 · 계약·조달 · 복무·이해충돌 · HR·갑질 · 적극행정), 오른쪽은 <b>판정</b>(전체 · 위법 처분 · 적법·면책 · 조건부 갈림)과 <b>보기 방식 전환</b>입니다.</td></tr>
+            <tr><td class="c">⑦</td><td><b>결과 줄</b></td><td><b>“검색 결과: N건”</b>과 지금 적용된 조건 칩(예: <span class="tag tag-t1">Tier 1: 사법 판례</span> · <span class="tag tag-t3">적극행정</span>)을 함께 보여 줍니다. 조건이 겹쳤을 때 여기부터 확인하세요.</td></tr>
+            <tr><td class="c">⑧</td><td><b>사례 카드</b></td><td>한 사례의 요약. 위쪽에 <b>Tier · 분야 · 판정</b> 뱃지, 제목, <b>대립 쟁점(딜레마)</b>, 사실관계 3줄, 아래쪽에 <b>사례ID · 대표 공인 근거 · 원문 열기 아이콘</b>이 있습니다. 카드를 누르면 상세 팝업이 열립니다.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="box note">
+        <span class="box-t">‘전체 보기’가 두 곳에 있습니다</span>
+        ② 통합 아카이브 카드 안과 ③ 4-Tier 배너 안 — 둘 다 <b>Tier · 분야 · 판정 · 즐겨찾기 · 검색어를 한 번에 초기화</b>합니다.
+        화면이 이상하게 좁아 보이면 먼저 이 버튼을 누르세요.
+      </div>
+    </section>
+
+    <!-- ═══════════════ 3. 실전 사용법 3단계 ═══════════════ -->
+    <section id="s3">
+      <div class="sec-head">
+        <div class="sec-num"><span>3</span></div>
+        <h2>실전 사용법 3단계</h2>
+      </div>
+
+      <!-- STEP 1 -->
+      <div class="step">
+        <div class="step-head">
+          <span class="step-badge">STEP 1</span>
+          <h3>4-Tier 카드 &amp; 분야 카드 조합으로 원하는 사례만 추리기</h3>
+        </div>
+        <p class="lead">가장 빠른 길입니다. “믿을 만한 판결로만 보고 싶다”면 Tier 1, “적극행정 면책 사례만 보고 싶다”면 분야 카드를 누르면 됩니다.</p>
+
+        <ol>
+          <li><b>Tier 카드를 하나 누릅니다.</b> 예: <span class="tag tag-t1">Tier 1: 사법 판례</span> → 카드에 파란 테두리가 표시되고, 아래 목록과 <b>‘검색 결과’</b>가 그 Tier <b>36건</b>으로 바뀝니다. (카드 오른쪽 숫자는 그 Tier의 전체 건수입니다.)</li>
+          <li><b>이어서 분야 카드를 누릅니다.</b> 예: <b>적극행정 면책</b> → 두 조건이 <b>겹쳐서</b> 적용되어 <b>2건</b>만 남습니다.</li>
+          <li><b>결과 줄의 칩으로 확인합니다.</b> <span class="tag tag-t1">Tier 1: 사법 판례</span> · <span class="tag tag-t3">적극행정</span> 처럼 지금 걸린 조건이 그대로 보입니다.</li>
+          <li><b>조건을 바꾸려면</b> 같은 카드를 한 번 더 누릅니다(해제). Tier는 그대로 두고 분야만 바꿀 수도 있습니다.</li>
+        </ol>
+
+        <figure>
+          <a href="./guide-img-02-filter.png" target="_blank" rel="noopener">
+            <img src="./guide-img-02-filter.png" alt="Tier 1 사법 판례 카드와 적극행정 면책 카드를 함께 눌러 2건으로 좁혀진 화면">
+          </a>
+          <figcaption><b>화면 2.</b> <span class="tag tag-t1">Tier 1: 사법 판례</span> + <span class="tag tag-t3">적극행정</span> 조합 → <b>검색 결과 2건</b>. 적용 조건이 결과 줄 오른쪽에 칩으로 표시됩니다. <span class="no-print">(클릭하면 원본 크기)</span></figcaption>
+        </figure>
+
+        <div class="box warn">
+          <span class="box-t">0건이 나왔을 때</span>
+          “선택한 조합에 해당하는 감사 그레이존 사례가 없습니다”라는 안내와 함께 <b>어떤 조건이 겹쳤는지</b>가 표시됩니다.
+          Tier와 분야가 함께 걸린 경우에는 각 조건의 건수와 <b>교집합 건수</b>까지 안내됩니다. 그 아래 <b>[필터 전체 초기화]</b>를 누르면 한 번에 풀립니다.
+        </div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="step">
+        <div class="step-head">
+          <span class="step-badge">STEP 2</span>
+          <h3>키워드 · 사례ID · 판결 사건번호로 즉시 검색하기</h3>
+        </div>
+        <p class="lead">법률 용어를 몰라도 됩니다. 현업에서 쓰는 말 그대로 입력하세요. 글자를 칠 때마다 결과가 즉시 바뀝니다.</p>
+
+        <ol>
+          <li><b>업무 단어를 그대로 입력</b> — <code>쪼개기</code>, <code>풀링제</code>, <code>자문료</code>, <code>사전컨설팅</code>, <code>유령연구원</code> 등.</li>
+          <li><b>사례ID로 바로 찾기</b> — <code>RND-01</code>, <code>HR-04</code>, <code>IMMUNITY-22</code> 처럼 앞의 코드를 넣으면 그 사례 하나만 남습니다.</li>
+          <li><b>판결 사건번호로 찾기</b> — <code>2021도8468</code> 처럼 판결 사건번호를 넣어도 찾아집니다(공인 근거 문구에 포함된 경우).</li>
+          <li><b>검색 대상</b>은 사건명(제목) · 대립 쟁점 · 사실관계 · 공인 근거 · 키워드 · 사례ID 여섯 곳입니다. 영문은 대소문자를 가리지 않습니다.</li>
+        </ol>
+
+        <figure>
+          <a href="./guide-img-03-search.png" target="_blank" rel="noopener">
+            <img src="./guide-img-03-search.png" alt="검색창에 쪼개기를 입력해 7건으로 좁혀진 화면">
+          </a>
+          <figcaption><b>화면 3.</b> 검색창에 <b>“쪼개기”</b> 입력 → <b>검색 결과 7건</b>. 결과 줄 오른쪽에 <span class="tag">검색: 쪼개기</span> 칩이 표시됩니다. <span class="no-print">(클릭하면 원본 크기)</span></figcaption>
+        </figure>
+
+        <div class="box note">
+          <span class="box-t">검색이 안 될 때 요령</span>
+          조사·띄어쓰기·괄호를 빼고 <b>핵심 명사만 2~3글자</b>로 줄여 보세요. 예: <code>학생인건비 풀링제 횡령</code> → <code>풀링</code>.
+          그래도 안 나오면 그 단어가 사례 본문에 없는 경우이니, 분야 카드로 좁힌 뒤 카드 목록을 눈으로 훑는 편이 빠릅니다.
+        </div>
+      </div>
+
+      <!-- STEP 3 -->
+      <div class="step">
+        <div class="step-head">
+          <span class="step-badge">STEP 3</span>
+          <h3>상세 팝업 읽는 법 &amp; 하단 검증 버튼 활용하기</h3>
+        </div>
+        <p class="lead">카드를 누르면 팝업이 열립니다. 팝업은 <b>6개 구역</b>으로 정해져 있어, 어디를 먼저 봐야 할지 헷갈리지 않습니다. 아래에서부터 차례로 읽으시면 됩니다.</p>
+
+        
+
+        <div class="tbl-wrap">
+          <table>
+            <caption>표 5. 팝업의 6개 구역 — 위에서부터 이 순서로 읽습니다</caption>
+            <thead>
+              <tr><th style="width:5%">순</th><th style="width:26%">구역 이름</th><th>무엇을 보나</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="c">1</td><td><b>핵심 대립 쟁점</b><br><span style="font-size:12px;color:#64748b;">(경계선 딜레마)</span></td><td>“A vs B” 형태로 두 논리가 충돌하는 지점. <b>왼쪽이 담당자 항변, 오른쪽이 감사 지적</b>입니다.</td></tr>
+              <tr><td class="c">2</td><td><b>사건 개요 및 사실관계</b></td><td>무엇이 확인되었고, 어떤 자료(통장 거래내역·검수조서 등)를 대조했는지.</td></tr>
+              <tr><td class="c">3</td><td><b>결정 기관 및 공인 근거</b><br><span style="font-size:12px;color:#64748b;">‘공식 판례·처분 연동’ 표시</span></td><td>어떤 판결·처분·고시에 근거했는지. <b>바로 아래에 검증 버튼 4개(또는 3개)</b>가 붙어 있습니다.</td></tr>
+              <tr><td class="c">4</td><td><b>법적·규정 근거</b></td><td>적용 법령 조문. 아래에 “※ 감사 실무 시 상위 법령 조문 및 원내 감사규정 병기 필수” 안내가 고정 표시됩니다.</td></tr>
+              <tr><td class="c">5</td><td><b>최종 판정 및 결정적 판단 기준</b><br><span style="font-size:12px;color:#64748b;">(합·불합 분기점)</span></td><td><b>가장 중요한 구역.</b> 무엇이 충족되면 위법, 무엇이 빠지면 면책인지가 문장으로 정리되어 있습니다.</td></tr>
+              <tr><td class="c">6</td><td><b>감사인 실무 적용 체크포인트</b><br><span style="font-size:12px;color:#64748b;">(KITECH 적용)</span></td><td>대괄호 제목 + 실행 지침 형태(예: [인건비 계좌실사] …). <b>일상감사·사전점검 항목으로 그대로 옮겨 쓰는 부분</b>입니다.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>① Tier 1 사례(사법 판례) — 버튼이 4개</h4>
+        <figure class="fig-portrait">
+          <a href="./guide-img-04-modal-tier1.png" target="_blank" rel="noopener">
+            <img src="./guide-img-04-modal-tier1.png" alt="Tier 1 사례 RND-01 상세 팝업 — 6개 구역과 판결 원문·구글·네이버·검색어 복사 4개 버튼">
+          </a>
+          <figcaption><b>화면 4.</b> Tier 1 사례(<b>RND-01</b>) 팝업. <b>[판결 원문(법제처)]</b>까지 <b>4개 버튼</b>이 모두 보입니다. <span class="no-print">(클릭하면 원본 크기)</span></figcaption>
+        </figure>
+
+
+
+        <h4>② 일반 사례(Tier 2~4) — 버튼이 3개</h4>
+        <figure class="fig-portrait">
+          <a href="./guide-img-05-modal-general.png" target="_blank" rel="noopener">
+            <img src="./guide-img-05-modal-general.png" alt="Tier 3 사례 HR-04 상세 팝업 — 구글 원문 검색·네이버 법률 검색·검색어 복사 3개 버튼">
+          </a>
+          <figcaption><b>화면 5.</b> Tier 3 사례(<b>HR-04</b>) 팝업. <b>[판결 원문(법제처)]이 없고 3개 버튼</b>만 보입니다. <span class="no-print">(클릭하면 원본 크기)</span></figcaption>
+        </figure>
+
+        <div class="tbl-wrap">
+          <table>
+            <caption>표 6. 검증 버튼 4종 — 어떤 사례에서 무엇이 보이는가</caption>
+            <thead>
+              <tr><th style="width:24%">버튼</th><th style="width:16%">보이는 사례</th><th>누르면</th><th style="width:26%">이렇게 쓰세요</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="chip chip-law">판결 원문(법제처)</span></td>
+                <td><b>Tier 1만</b><br>(36건 전부)</td>
+                <td>법제처 국가법령정보센터의 <b>해당 판결 상세페이지</b>가 새 창으로 열립니다.</td>
+                <td>판시사항·판결요지·참조조문을 <b>원문 그대로</b> 확인. 인용 전 필수.</td>
+              </tr>
+              <tr>
+                <td><span class="chip chip-g">G 구글 원문 검색</span></td>
+                <td><b>모든 사례</b></td>
+                <td>Tier 1은 판결 <b>사건번호·판결요지로 검색</b>, 그 외는 <b>공인 근거 원문 검색</b>으로 연결됩니다.</td>
+                <td>구글 상단의 AI 요약으로 법리 흐름을 빠르게 잡을 때.</td>
+              </tr>
+              <tr>
+                <td><span class="chip chip-n">N 네이버 법률 검색</span></td>
+                <td><b>모든 사례</b></td>
+                <td>네이버에서 같은 검색어로 법률정보·판례를 찾아 줍니다.</td>
+                <td>조문 전문·유사 판례를 한글 자료 위주로 훑을 때.</td>
+              </tr>
+              <tr>
+                <td><span class="chip chip-copy">검색어 복사</span></td>
+                <td><b>모든 사례</b></td>
+                <td>정제된 검색어(근거 문구 + 사건명)가 클립보드에 복사되고, 버튼 문구가 잠시 <b>“복사 완료!”</b>로 바뀝니다.</td>
+                <td>국가법령정보센터·감사원 결과공개·NST 감사위원회에서 직접 조회할 때 붙여넣기.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p>
+          ‘결정 기관 및 공인 근거’ 칸 아래에는 <b>공식 포털 바로가기</b>도 고정으로 붙어 있습니다 —
+          <a href="https://www.law.go.kr" target="_blank" rel="noopener">국가법령정보센터</a> ·
+          <a href="https://bai.go.kr/bai/result/branch/list" target="_blank" rel="noopener">감사원 결과공개</a> ·
+          <a href="https://portal.scourt.go.kr/pgp/index.on?m=PGP1011M01&amp;l=N&amp;c=900" target="_blank" rel="noopener">대법원 종합법률</a> ·
+          <a href="https://audit.nst.re.kr/ams/auditResult/initAuditFidKindResultList.do" target="_blank" rel="noopener">NST 감사위원회 감사결과</a>.
+        </p>
+
+        <h4>③ 팝업을 닫고, 필요하면 담아 두기</h4>
+        <ul>
+          <li><b>닫기</b> — 오른쪽 위 <b>×</b> 또는 맨 아래 <b>[닫기]</b> 버튼. (바깥 여백을 눌러도 닫히지 않습니다.)</li>
+          <li><b>즐겨찾기</b> — 팝업 왼쪽 아래 <b>[☆ 즐겨찾기 추가]</b>. 카드 오른쪽 위 별을 눌러도 됩니다. 다시 누르면 해제됩니다.</li>
+          <li><b>즐겨찾기만 보기</b> — 검색창 오른쪽 <b>★(개수)</b> 버튼. 다시 누르면 전체로 돌아옵니다.</li>
+          <li><b>표로 보기</b> — 필터 줄 오른쪽의 <b>보기 전환 아이콘</b>(카드형 ↔ 목록형)으로 화면 방식을 바꿉니다. 표는 <b>번호 · 분류 · 사례명 및 핵심 내용 · 핵심 대립 쟁점(VS) · 최종 판정 · 결정적 판단 기준 · 공인 근거 검색</b> 7개 열이며, 화면이 좁으면 가로로 스크롤됩니다.</li>
+          <li><b>보관</b> — 화면 인쇄는 <b>Ctrl + P</b>, 710건 전체 데이터는 헤더의 <b>[데이터 내보내기]</b>(JSON 파일).</li>
+        </ul>
+
+        <div class="box tip">
+          <span class="box-t">즐겨찾기는 이 브라우저에만 저장됩니다</span>
+          즐겨찾기는 접속한 기기·브라우저에 저장됩니다. 다른 PC나 다른 브라우저에서 열면 목록이 비어 보이는 것이 정상입니다.
+          중요한 사례는 <b>사례ID(RND-01 등)를 메모</b>해 두시면 어디서든 검색창으로 즉시 찾을 수 있습니다.
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════ 4. 팁 & 주의사항 ═══════════════ -->
+    <section id="s4">
+      <div class="sec-head">
+        <div class="sec-num"><span>4</span></div>
+        <h2>실무 활용 팁 &amp; 주의사항</h2>
+      </div>
+
+      <h3>① Tier별 활용 유의점</h3>
+      <div class="tbl-wrap">
+        <table>
+          <caption>표 7. 감사조서·사전검토에서 Tier를 쓸 때의 유의점</caption>
+          <thead>
+            <tr><th style="width:20%">등급</th><th style="width:40%">이렇게 쓰세요</th><th>이건 주의하세요</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="t1"><span class="tag tag-t1">Tier 1</span> 사법 판례</td>
+              <td>처분의 정당성을 가장 강하게 뒷받침. 판결의 <b>판시사항 문구</b>를 그대로 인용.</td>
+              <td>사실관계가 완전히 같은 사건이 아닐 수 있습니다. <b>판단 구조가 같은지</b> 판결요지를 읽고 확인하세요.</td>
+            </tr>
+            <tr>
+              <td class="t2"><span class="tag tag-t2">Tier 2</span> 공인 처분</td>
+              <td>감사원·권익위·중노위가 <b>실제로 어떤 수위로 처분했는지</b> 참고. 제재 수준 판단에 유용.</td>
+              <td>처분은 개별 사실관계에 따른 결론입니다. <b>우리 사안의 정황</b>이 같은지 대조해야 합니다.</td>
+            </tr>
+            <tr>
+              <td class="t3"><span class="tag tag-t3">Tier 3</span> 정부 유권해석</td>
+              <td>비목·집행 기준처럼 <b>실무 규칙</b>을 확인. 사전컨설팅 답변의 근거로 적합.</td>
+              <td>고시·행정규칙은 개정이 잦습니다. 인용 전 <b>현행 여부</b>를 국가법령정보센터에서 확인하세요.</td>
+            </tr>
+            <tr>
+              <td class="t4"><span class="tag tag-t4">Tier 4</span> 출연연 규정</td>
+              <td>우리 기관 규정 위반 여부를 직접 판단. <b>일상감사 체크리스트</b>로 전환하기 좋습니다.</td>
+              <td>원내 규정은 개정 이력이 있습니다. 조서 작성 시 <b>적용 시점의 규정</b>을 확인하세요.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>② 원문 링크 최종 확인 원칙 — 이 세 가지는 꼭 지켜 주세요</h3>
+      <ol>
+        <li><b>결론을 인용하기 전에 원문을 엽니다.</b> 팝업의 [판결 원문(법제처)] · [구글 원문 검색] · [네이버 법률 검색] 중 최소 하나로 원문 화면을 직접 확인합니다.</li>
+        <li><b>조문은 현행을 확인합니다.</b> 이 DB의 근거 문구는 등재 시점 기준입니다. 인용할 때 국가법령정보센터에서 현행 조문을 다시 봅니다.</li>
+        <li><b>상위 법령 + 원내 규정을 병기합니다.</b> 팝업 4번 구역의 안내 문구(“위 상위 법령 조문 및 원내 감사규정 병기 필수”)가 그 원칙입니다.</li>
+      </ol>
+      <div class="box warn">
+        <span class="box-t">이 DB는 ‘판단 보조’입니다</span>
+        최종 처분·면책 판단과 책임은 감사인과 기관에 있습니다. 이 DB의 결론은 <b>같은 구조의 선례</b>일 뿐, 우리 사안의 결론을 자동으로 정해 주지 않습니다.
+      </div>
+
+      <h3>③ 자주 묻는 질문</h3>
+
+      <div class="faq">
+        <p class="q"><span>Q1.</span>검색했더니 0건이 나옵니다. 고장인가요?</p>
+        <p class="a">대부분 <b>앞서 누른 필터가 남아 있는 경우</b>입니다. 결과 줄 오른쪽의 적용 칩을 확인하고 <b>[전체 보기]</b>를 한 번 눌러 주세요.
+        그래도 0건이면 단어를 줄여 보세요(예: <code>학생인건비 풀링제</code> → <code>풀링</code>). 0건 화면에도 어떤 조건이 겹쳤는지와
+        <b>[필터 전체 초기화]</b> 버튼이 함께 나옵니다.</p>
+      </div>
+
+      <div class="faq">
+        <p class="q"><span>Q2.</span>판결 사건번호(예: 2021도8468)로 검색해도 되나요?</p>
+        <p class="a">됩니다. 사건번호는 팝업 3번 구역 ‘결정 기관 및 공인 근거’ 문구에 들어 있어 검색 대상에 포함됩니다.
+        다만 <b>DB에 등재된 표기 그대로</b>일 때만 걸리므로, 정확히 기억나지 않으면 <code>2021도8468</code> 대신 사건명 키워드로 찾는 편이 빠릅니다.
+        (사례ID는 <code>RND-01</code>처럼 분야 약어-번호 형식으로, 판결 사건번호와는 다릅니다.)</p>
+      </div>
+
+      <div class="faq">
+        <p class="q"><span>Q3.</span>Tier 1인데 왜 다른 사건처럼 보이나요?</p>
+        <p class="a">Tier 1은 <b>그 사안의 분기점을 직접 판시한 선도 판례</b>를 연결한 것입니다. 재원이나 당사자가 달라 사실관계가 똑같지 않을 수 있으므로,
+        <b>판단 구조가 같은지</b>를 판결요지에서 확인하는 것이 핵심입니다. 팝업 5번 구역(결정적 판단 기준)이 그 연결 고리를 설명합니다.</p>
+      </div>
+
+      <div class="faq">
+        <p class="q"><span>Q4.</span>즐겨찾기·필터가 갑자기 사라졌습니다.</p>
+        <p class="a">즐겨찾기는 <b>사용 중인 브라우저에 저장</b>됩니다. 브라우저 기록·캐시를 지우거나 다른 기기로 접속하면 보이지 않습니다.
+        필터는 새로고침하면 초기화되는 것이 정상입니다. 꼭 남길 사례는 <b>사례ID와 사건명을 메모</b>해 두세요.</p>
+      </div>
+
+      <h3>④ 더 빠르게 쓰는 세 가지 습관</h3>
+      <ul>
+        <li><b>분야 → Tier → 검색</b> 순서로 좁히면 대부분 3번의 클릭으로 끝납니다.</li>
+        <li>사전검토(일상감사) 단계에서는 <b>적극행정 면책(110건)</b>부터 보세요. “어디까지 봐줄 수 있는지”의 경계가 먼저 잡힙니다.</li>
+        <li>조서를 쓸 때는 팝업 6번 구역(체크포인트)의 <b>대괄호 제목</b>을 그대로 점검항목 이름으로 쓰면 정리가 빠릅니다.</li>
+      </ul>
+    </section>
+
+    <footer>
+      <p><b>공공·출연연 감사 그레이존(Borderline) 사례 DB — 사용설명서</b></p>
+      <p>본 설명서의 모든 화면은 2026년 11월 17일 실서비스(https://audit-grayzone-db.vercel.app/) 화면을 그대로 캡처한 것입니다.</p>
+      <p>수록 710건 · 4-Tier 36 / 282 / 362 / 30 · 6대 분야 110×5 + 160 · 한국생산기술연구원(KITECH) 내부감사 지원 시스템</p>
+    </footer>
+
+  </div><!-- /.wrap -->
+</div><!-- /.page -->
+
+<script>
+  function closeWindow(){
+    // 앱 내 iframe 모달로 열린 경우: 부모 창에 닫기 요청
+    if(window.parent && window.parent !== window){
+      try{ window.parent.postMessage({type:'audit-guide-close'}, '*'); }catch(e){}
+      return;
+    }
+    window.close();
+    setTimeout(function(){
+      if(!window.closed && document.body){
+        var t=document.createElement('div');
+        t.textContent='이 창은 브라우저가 직접 연 탭이라 스스로 닫을 수 없습니다. 탭을 닫아 주세요.';
+        t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0f172a;color:#fff;font-size:13px;padding:10px 16px;border-radius:10px;box-shadow:0 8px 24px rgba(15,23,42,.3);z-index:99;max-width:90%;';
+        document.body.appendChild(t);
+        setTimeout(function(){ if(t.parentNode) t.parentNode.removeChild(t); },4000);
+      }
+    },300);
+  }
+</script>
+</body>
+</html>
