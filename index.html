@@ -62,7 +62,7 @@
             </div>
             <div class="flex items-baseline space-x-3 mt-1">
               <span class="text-3xl font-extrabold text-white" id="stat-total">710</span>
-              <span class="text-xs text-slate-400 font-medium">사례 전수 수록 (괴롭힘·성비위 160건 등 6대 분야)</span>
+              <span class="text-xs text-slate-400 font-medium">사례 전수 수록 (괴롭힘·성비위 161건 등 6대 분야)</span>
             </div>
           </div>
         </div>
@@ -20909,6 +20909,9 @@
 
     // ── 사용설명서(guide.html) 열기: PC는 팝업 창, 차단·모바일은 인페이지 모달 ──
     const GUIDE_SRC = './guide.html';
+    // 인페이지 모달은 ?embed=1 로 열어 설명서 자체 상단 바를 숨깁니다(상단 바 2줄 겹침 방지).
+    // 독립 창·팝업은 GUIDE_SRC 그대로 열려 인쇄/닫기 바가 정상 표시됩니다.
+    const GUIDE_EMBED_SRC = './guide.html?embed=1';
 
     function isSmallViewport() {
       return window.matchMedia('(max-width: 1024px)').matches ||
@@ -20934,7 +20937,7 @@
       const frame = document.getElementById('guideFrame');
       if (!modal || !frame) return;
       if (!frame.getAttribute('src') || frame.getAttribute('src') === 'about:blank') {
-        frame.setAttribute('src', GUIDE_SRC);
+        frame.setAttribute('src', GUIDE_EMBED_SRC);
       }
       modal.classList.remove('hidden');
       modal.classList.add('flex');
