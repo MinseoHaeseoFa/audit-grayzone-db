@@ -10,27 +10,42 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap');
-    body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif; }
+    body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; }
     .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    /* ───────── 모바일 레이아웃 보강 (가로 오버플로우 0px · 한글 어절 단위 줄바꿈) ───────── */
+    html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; max-width: 100%; overflow-x: clip; }
+    body { max-width: 100%; overflow-x: clip; word-break: keep-all; overflow-wrap: anywhere; }
+    /* 숫자+단위(363건)·짧은 배지 라벨이 두 줄로 쪼개지지 않도록 */
+    .keep-together { white-space: nowrap; }
+    /* 칩·카드 탭 시 브라우저 더블탭 확대로 화면이 확대되어 오른쪽이 잘려 보이는 현상 방지 (핀치 확대는 그대로 허용) */
+    .tier-card, .stat-card, .cat-btn, .status-btn, [role="button"], button, a { touch-action: manipulation; }
+    /* 필터 칩 줄: 폭이 모자라면 카드 밖으로 삐져나가지 않고 다음 줄로 감싼다 */
+    .chip-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.375rem; min-width: 0; max-width: 100%; }
+    /* 모달 본문: 작은 화면에서 여백을 줄여 내용 폭을 확보 */
+    @media (max-width: 640px) {
+      .modal-card { padding: 1rem !important; }
+      .modal-head { padding: 1rem !important; }
+    }
   </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
 
   <!-- Header -->
-  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+  <header class="bg-slate-900 text-white border-b border-slate-800 md:sticky md:top-0 z-30 shadow-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div class="flex items-center space-x-3">
-        <div class="w-11 h-11 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg">
+      <div class="flex items-start sm:items-center gap-3 min-w-0">
+        <div class="w-11 h-11 shrink-0 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg">
           <i class="fa-solid fa-scale-balanced text-xl"></i>
         </div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <h1 class="text-xl font-bold tracking-tight text-white">공공·출연연 감사 그레이존(Borderline) 사례 DB</h1>
-            <span class="px-2.5 py-0.5 text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-full">4-Tier 다층 공인 근거 체계 (사법·처분·해석·규정)</span>
+        <div class="min-w-0">
+          <div class="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-2">
+            <h1 class="text-[17px] leading-snug sm:text-xl font-bold tracking-tight text-white [text-wrap:balance]">공공·출연연 감사 그레이존(Borderline) 사례 DB</h1>
+            <span class="px-2.5 py-0.5 text-[11px] leading-relaxed sm:text-xs font-semibold bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-full">4-Tier 다층 공인 근거 체계 (사법·처분·해석·규정)</span>
           </div>
-          <p class="text-xs text-slate-400 mt-0.5">한국생산기술연구원(KITECH) 내부감사 지원 시스템</p>
+          <p class="text-xs text-slate-400 mt-1">한국생산기술연구원(KITECH) 내부감사 지원 시스템</p>
         </div>
       </div>
       <div class="flex items-center gap-2 flex-wrap">
@@ -51,31 +66,31 @@
     <!-- Standalone '전체 검증 사례' Executive Card -->
     <div onclick="filterCategory('전체')" class="cursor-pointer bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-2xl p-5 shadow-sm border border-slate-700/60 hover:border-blue-400 transition">
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div class="flex items-center space-x-4">
-          <div class="w-12 h-12 rounded-xl bg-blue-600/30 border border-blue-400/30 flex items-center justify-center text-blue-400 text-2xl shadow-inner">
+        <div class="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0">
+          <div class="w-12 h-12 shrink-0 rounded-xl bg-blue-600/30 border border-blue-400/30 flex items-center justify-center text-blue-400 text-2xl shadow-inner">
             <i class="fa-solid fa-database"></i>
           </div>
-          <div>
-            <div class="flex items-center space-x-2">
+          <div class="min-w-0">
+            <div class="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:gap-2">
               <span class="text-sm font-semibold text-slate-200">전체 검증 사례 통합 아카이브</span>
-              <span class="px-2 py-0.5 text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-full">KITECH 실무 특화 710선</span>
+              <span class="px-2 py-0.5 text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30 rounded-full keep-together">KITECH 실무 특화 710선</span>
             </div>
-            <div class="flex items-baseline space-x-3 mt-1">
-              <span class="text-3xl font-extrabold text-white" id="stat-total">710</span>
-              <span class="text-xs text-slate-400 font-medium">사례 전수 수록 (괴롭힘·성비위 161건 등 6대 분야)</span>
+            <div class="flex flex-col items-start gap-0.5 sm:flex-row sm:items-baseline sm:gap-3 mt-1">
+              <span class="text-3xl font-extrabold text-white keep-together" id="stat-total">710</span>
+              <span class="text-[11px] sm:text-xs leading-relaxed text-slate-400 font-medium">사례 전수 수록 (괴롭힘·성비위 161건 등 6대 분야)</span>
             </div>
           </div>
         </div>
 
         <!-- Status Distribution Badges & Quick Action -->
         <div class="flex flex-wrap items-center gap-2">
-          <div class="px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-medium">
+          <div class="px-3 py-1.5 rounded-lg bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-medium keep-together">
             <span class="text-rose-400 mr-1">●</span> 위법 인정 <strong class="text-white ml-0.5" id="stat-status-illegal">538</strong>건
           </div>
-          <div class="px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-medium">
+          <div class="px-3 py-1.5 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-medium keep-together">
             <span class="text-emerald-400 mr-1">●</span> 적법 면책 <strong class="text-white ml-0.5" id="stat-status-legal">198</strong>건
           </div>
-          <div class="px-3 py-1.5 rounded-lg bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium">
+          <div class="px-3 py-1.5 rounded-lg bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium keep-together">
             <span class="text-amber-400 mr-1">●</span> 조건부 갈림 <strong class="text-white ml-0.5" id="stat-status-split">156</strong>건
           </div>
           <button onclick="event.stopPropagation(); resetAllFilters()" title="Tier·분류·판정·검색 필터를 한 번에 초기화" class="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold transition flex items-center space-x-1.5 shadow-sm ml-1">
@@ -93,7 +108,7 @@
       <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
         <div class="flex items-center space-x-2 text-xs font-bold text-slate-800">
           <i class="fa-solid fa-layer-group text-blue-600"></i>
-          <span>KITECH 4-Tier 다층 공인 근거 체계 (Evidence Hierarchy) 현황</span>
+          <span class="[text-wrap:balance]">KITECH 4-Tier 다층 공인 근거 체계 (Evidence Hierarchy) 현황</span>
           <span class="hidden md:inline text-[11px] font-normal text-slate-400 pl-1.5 border-l border-slate-200 ml-0.5">카드를 누르면 해당 Tier만 · 다시 누르면 해제 (아래 분류·판정과 AND 조합)</span>
         </div>
         <div class="flex items-center space-x-2 shrink-0">
@@ -105,33 +120,33 @@
         </div>
       </div>
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-        <div onclick="filterTier(1)" data-tier-card="1" role="button" aria-pressed="false" title="Tier 1 사법 판례만 보기 (다시 누르면 해제)" class="tier-card cursor-pointer p-2.5 rounded-lg bg-blue-50/60 border border-blue-100 hover:border-blue-400 transition flex items-center justify-between">
-          <div>
-            <div class="font-bold text-blue-800">Tier 1: 사법 판례</div>
-            <div class="text-[11px] text-blue-600">확정·파기환송·1심 구분</div>
+        <div onclick="filterTier(1)" data-tier-card="1" role="button" aria-pressed="false" title="Tier 1 사법 판례만 보기 (다시 누르면 해제)" class="tier-card cursor-pointer p-2.5 rounded-lg bg-blue-50/60 border border-blue-100 hover:border-blue-400 transition flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div class="min-w-0">
+            <div class="font-bold text-blue-800 leading-tight">Tier 1: 사법 판례</div>
+            <div class="text-[11px] text-blue-600 leading-snug mt-0.5">확정·파기환송·1심 구분</div>
           </div>
-          <span class="text-base font-black text-blue-700" id="stat-tier-1">0건</span>
+          <span class="text-base font-black text-blue-700 keep-together shrink-0" id="stat-tier-1">0건</span>
         </div>
-        <div onclick="filterTier(2)" data-tier-card="2" role="button" aria-pressed="false" title="Tier 2 공인 처분만 보기 (다시 누르면 해제)" class="tier-card cursor-pointer p-2.5 rounded-lg bg-purple-50/60 border border-purple-100 hover:border-purple-400 transition flex items-center justify-between">
-          <div>
-            <div class="font-bold text-purple-800">Tier 2: 공인 처분</div>
-            <div class="text-[11px] text-purple-600">감사원·권익위·중노위</div>
+        <div onclick="filterTier(2)" data-tier-card="2" role="button" aria-pressed="false" title="Tier 2 공인 처분만 보기 (다시 누르면 해제)" class="tier-card cursor-pointer p-2.5 rounded-lg bg-purple-50/60 border border-purple-100 hover:border-purple-400 transition flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div class="min-w-0">
+            <div class="font-bold text-purple-800 leading-tight">Tier 2: 공인 처분</div>
+            <div class="text-[11px] text-purple-600 leading-snug mt-0.5">감사원·권익위·중노위</div>
           </div>
-          <span class="text-base font-black text-purple-700" id="stat-tier-2">0건</span>
+          <span class="text-base font-black text-purple-700 keep-together shrink-0" id="stat-tier-2">0건</span>
         </div>
-        <div onclick="filterTier(3)" data-tier-card="3" role="button" aria-pressed="false" title="Tier 3 정부 유권해석만 보기 (다시 누르면 해제)" class="tier-card cursor-pointer p-2.5 rounded-lg bg-emerald-50/60 border border-emerald-100 hover:border-emerald-400 transition flex items-center justify-between">
-          <div>
-            <div class="font-bold text-emerald-800">Tier 3: 정부 유권해석</div>
-            <div class="text-[11px] text-emerald-600">기재부·과기부·고용부</div>
+        <div onclick="filterTier(3)" data-tier-card="3" role="button" aria-pressed="false" title="Tier 3 정부 유권해석만 보기 (다시 누르면 해제)" class="tier-card cursor-pointer p-2.5 rounded-lg bg-emerald-50/60 border border-emerald-100 hover:border-emerald-400 transition flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div class="min-w-0">
+            <div class="font-bold text-emerald-800 leading-tight">Tier 3: 정부 유권해석</div>
+            <div class="text-[11px] text-emerald-600 leading-snug mt-0.5">기재부·과기부·고용부</div>
           </div>
-          <span class="text-base font-black text-emerald-700" id="stat-tier-3">0건</span>
+          <span class="text-base font-black text-emerald-700 keep-together shrink-0" id="stat-tier-3">0건</span>
         </div>
-        <div onclick="filterTier(4)" data-tier-card="4" role="button" aria-pressed="false" title="Tier 4 출연연 규정만 보기 (다시 누르면 해제)" class="tier-card cursor-pointer p-2.5 rounded-lg bg-amber-50/60 border border-amber-100 hover:border-amber-400 transition flex items-center justify-between">
-          <div>
-            <div class="font-bold text-amber-800">Tier 4: 출연연 규정</div>
-            <div class="text-[11px] text-amber-600">NST 감사위·생기원 가이드</div>
+        <div onclick="filterTier(4)" data-tier-card="4" role="button" aria-pressed="false" title="Tier 4 출연연 규정만 보기 (다시 누르면 해제)" class="tier-card cursor-pointer p-2.5 rounded-lg bg-amber-50/60 border border-amber-100 hover:border-amber-400 transition flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div class="min-w-0">
+            <div class="font-bold text-amber-800 leading-tight">Tier 4: 출연연 규정</div>
+            <div class="text-[11px] text-amber-600 leading-snug mt-0.5">NST 감사위·생기원 가이드</div>
           </div>
-          <span class="text-base font-black text-amber-700" id="stat-tier-4">0건</span>
+          <span class="text-base font-black text-amber-700 keep-together shrink-0" id="stat-tier-4">0건</span>
         </div>
       </div>
     </div>
@@ -184,7 +199,7 @@
         <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
         <input type="text" id="searchInput" oninput="applyFilters()" placeholder="사건명, 대립 쟁점(예: 쪼개기, 풀링제, 직무발명, 스핀오프, 사전컨설팅, 자문료), 사건번호, 결정기관 검색..." class="w-full pl-11 pr-24 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition">
         <div class="absolute right-3 top-2 flex items-center space-x-1">
-          <button onclick="toggleFavoriteOnly()" id="favFilterBtn" class="px-2.5 py-1 text-xs rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition flex items-center space-x-1">
+          <button onclick="toggleFavoriteOnly()" id="favFilterBtn" class="px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition flex items-center space-x-1 keep-together">
             <i class="fa-solid fa-star text-amber-400"></i>
             <span id="favCount">0</span>
           </button>
@@ -192,28 +207,28 @@
       </div>
 
       <!-- Category & Status Filters: HR strictly placed BEFORE 적극행정 -->
-      <div class="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-slate-100 text-xs">
-        <div class="flex flex-wrap items-center gap-1.5">
-          <span class="text-slate-400 font-medium mr-1">분류:</span>
-          <button onclick="filterCategory('전체')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-900 text-white font-medium" data-cat="전체">전체 보기</button>
-          <button onclick="filterCategory('연구비')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="연구비">🔬 연구비</button>
-          <button onclick="filterCategory('기술료')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="기술료">💡 기술료</button>
-          <button onclick="filterCategory('계약')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="계약">🛒 계약</button>
-          <button onclick="filterCategory('복무·이해충돌')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="복무·이해충돌">🚨 복무·이해충돌</button>
-          <button onclick="filterCategory('괴롭힘·성비위')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="괴롭힘·성비위">👥 괴롭힘·성비위</button>
-          <button onclick="filterCategory('적극행정')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="적극행정">🛡️ 적극행정</button>
+      <div class="flex flex-col md:flex-row md:flex-wrap md:items-center md:justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
+        <div class="chip-row">
+          <span class="text-slate-400 font-medium mr-1 shrink-0">분류:</span>
+          <button onclick="filterCategory('전체')" class="cat-btn px-3 py-1.5 rounded-lg keep-together bg-slate-900 text-white font-medium" data-cat="전체">전체 보기</button>
+          <button onclick="filterCategory('연구비')" class="cat-btn px-3 py-1.5 rounded-lg keep-together bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="연구비">🔬 연구비</button>
+          <button onclick="filterCategory('기술료')" class="cat-btn px-3 py-1.5 rounded-lg keep-together bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="기술료">💡 기술료</button>
+          <button onclick="filterCategory('계약')" class="cat-btn px-3 py-1.5 rounded-lg keep-together bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="계약">🛒 계약</button>
+          <button onclick="filterCategory('복무·이해충돌')" class="cat-btn px-3 py-1.5 rounded-lg keep-together bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="복무·이해충돌">🚨 복무·이해충돌</button>
+          <button onclick="filterCategory('괴롭힘·성비위')" class="cat-btn px-3 py-1.5 rounded-lg keep-together bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="괴롭힘·성비위">👥 괴롭힘·성비위</button>
+          <button onclick="filterCategory('적극행정')" class="cat-btn px-3 py-1.5 rounded-lg keep-together bg-slate-100 text-slate-600 hover:bg-slate-200" data-cat="적극행정">🛡️ 적극행정</button>
         </div>
 
-        <div class="flex items-center gap-2">
-          <div class="flex items-center gap-1">
-            <span class="text-slate-400 font-medium mr-1">판정:</span>
-            <button onclick="filterStatus('전체')" class="status-btn px-2.5 py-1 rounded-md bg-slate-800 text-white" data-status="전체">전체</button>
-            <button onclick="filterStatus('위법 인정')" class="status-btn px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 hover:bg-rose-100" data-status="위법 인정">위법 인정</button>
-            <button onclick="filterStatus('적법 면책')" class="status-btn px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100" data-status="적법 면책">적법 면책</button>
-            <button onclick="filterStatus('조건부 갈림')" class="status-btn px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 hover:bg-amber-100" data-status="조건부 갈림">조건부 갈림</button>
+        <div class="flex flex-wrap items-center gap-2">
+          <div class="chip-row">
+            <span class="text-slate-400 font-medium mr-1 shrink-0">판정:</span>
+            <button onclick="filterStatus('전체')" class="status-btn px-2.5 py-1 rounded-md keep-together bg-slate-800 text-white" data-status="전체">전체</button>
+            <button onclick="filterStatus('위법 인정')" class="status-btn px-2.5 py-1 rounded-md keep-together bg-rose-50 text-rose-700 hover:bg-rose-100" data-status="위법 인정">위법 인정</button>
+            <button onclick="filterStatus('적법 면책')" class="status-btn px-2.5 py-1 rounded-md keep-together bg-emerald-50 text-emerald-700 hover:bg-emerald-100" data-status="적법 면책">적법 면책</button>
+            <button onclick="filterStatus('조건부 갈림')" class="status-btn px-2.5 py-1 rounded-md keep-together bg-amber-50 text-amber-700 hover:bg-amber-100" data-status="조건부 갈림">조건부 갈림</button>
           </div>
           <!-- View Toggle -->
-          <div class="flex items-center border border-slate-200 rounded-lg p-0.5 bg-slate-50 ml-2">
+          <div class="flex items-center border border-slate-200 rounded-lg p-0.5 bg-slate-50 sm:ml-2 ml-auto shrink-0">
             <button onclick="setViewMode('card')" id="btnCardView" class="px-2.5 py-1 rounded-md bg-white shadow-xs text-slate-800 font-medium text-xs">
               <i class="fa-solid fa-grip"></i>
             </button>
@@ -229,11 +244,11 @@
   <!-- Content Container: Card View / Table View -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 w-full flex-1">
     <!-- Active Result Count & Current Filter State -->
-    <div class="flex items-center justify-between mb-3 text-xs text-slate-500 px-1">
-      <div>
+    <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1 mb-3 text-xs text-slate-500 px-1">
+      <div class="keep-together shrink-0">
         <span>검색 결과: <strong id="resultCount" class="text-blue-600 font-bold">0</strong>건</span>
       </div>
-      <div id="activeFilterTag" class="text-slate-400">
+      <div id="activeFilterTag" class="text-slate-400 min-w-0 flex flex-wrap items-center gap-1 leading-relaxed">
         전체 보기
       </div>
     </div>
@@ -269,22 +284,22 @@
   <!-- Detail Modal with Clickable Authority Link -->
   <div id="detailModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto custom-scrollbar flex flex-col">
-      <div class="p-6 border-b border-slate-100 flex items-start justify-between">
-        <div>
-          <div class="flex items-center space-x-2">
-            <span id="modalCategory" class="px-2.5 py-0.5 text-xs font-semibold rounded-md">분류</span>
-            <span id="modalTierBadge" class="hidden px-2.5 py-0.5 text-xs font-bold rounded-md">Tier</span>
-            <span id="modalPrecState" class="hidden px-2.5 py-0.5 text-xs font-bold rounded-md">상태</span>
-            <span id="modalStatusBadge" class="px-2.5 py-0.5 text-xs font-semibold rounded-md">판정</span>
-            <span id="modalId" class="text-xs text-slate-400 font-mono">ID-00</span>
+      <div class="modal-head p-6 border-b border-slate-100 flex items-start justify-between gap-2">
+        <div class="min-w-0">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span id="modalCategory" class="px-2.5 py-0.5 text-xs font-semibold rounded-md keep-together">분류</span>
+            <span id="modalTierBadge" class="hidden px-2.5 py-0.5 text-xs font-bold rounded-md keep-together">Tier</span>
+            <span id="modalPrecState" class="hidden px-2.5 py-0.5 text-xs font-bold rounded-md keep-together">상태</span>
+            <span id="modalStatusBadge" class="px-2.5 py-0.5 text-xs font-semibold rounded-md keep-together">판정</span>
+            <span id="modalId" class="text-xs text-slate-400 font-mono keep-together">ID-00</span>
           </div>
-          <h2 id="modalTitle" class="text-lg font-bold text-slate-900 mt-2">사례 제목</h2>
+          <h2 id="modalTitle" class="text-base sm:text-lg font-bold text-slate-900 mt-2 leading-snug">사례 제목</h2>
         </div>
-        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1">
+        <button onclick="closeModal()" aria-label="닫기" class="shrink-0 text-slate-400 hover:text-slate-600 p-1 -mt-1 -mr-1">
           <i class="fa-solid fa-xmark text-xl"></i>
         </button>
       </div>
-      <div class="p-6 space-y-4 text-xs leading-relaxed">
+      <div class="modal-card p-6 space-y-4 text-xs leading-relaxed">
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
           <div class="text-slate-400 font-semibold mb-1 flex items-center space-x-1.5">
             <i class="fa-solid fa-code-compare text-blue-500"></i>
@@ -20847,15 +20862,15 @@
         card.onclick = () => openModal(item.id);
 
         card.innerHTML = `
-          <div>
-            <div class="flex items-center justify-between mb-3">
-              <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+          <div class="min-w-0">
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div class="flex flex-wrap items-center gap-1.5 min-w-0">
                 <span class="px-2 py-0.5 text-[11px] font-semibold rounded-md ${getTierBadgeClass(item.tier)}">${getTierBadgeLabel(item.tier)}</span>
                 ${precStateBadgeHtml(item)}
                 <span class="px-2 py-0.5 text-[11px] font-semibold rounded-md ${getCategoryBadgeClass(item.category)}">${item.category}</span>
                 <span class="px-2 py-0.5 text-[11px] font-semibold rounded-md ${getStatusBadgeClass(item.status)}">${item.status}</span>
               </div>
-              <button onclick="event.stopPropagation(); toggleFavorite('${item.id}')" class="text-slate-300 hover:text-amber-400 p-1">
+              <button onclick="event.stopPropagation(); toggleFavorite('${item.id}')" class="shrink-0 text-slate-300 hover:text-amber-400 p-1">
                 <i class="${isFav ? 'fa-solid text-amber-400' : 'fa-regular'} fa-star text-sm"></i>
               </button>
             </div>
@@ -20873,10 +20888,10 @@
             <p class="text-xs text-slate-600 line-clamp-3 mb-3 leading-relaxed">${item.facts}</p>
           </div>
 
-          <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
-            <span class="font-mono">${item.id}</span>
-            <div class="flex items-center space-x-2">
-              <span class="truncate max-w-[150px] text-slate-500">${item.authority.split('/')[0]}</span>
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 text-[11px] text-slate-400">
+            <span class="font-mono shrink-0">${item.id}</span>
+            <div class="flex items-center justify-end gap-2 min-w-0">
+              <span class="truncate max-w-[130px] sm:max-w-[150px] text-slate-500">${item.authority.split('/')[0]}</span>
               ${Number(item.tier) === 4 ? `
               <button type="button" onclick="event.stopPropagation(); openKitReg('${item.id}')" title="KITECH 내부규정 조문 보기" class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 text-[10px] font-semibold hover:bg-indigo-100 transition whitespace-nowrap">
                 <i class="fa-solid fa-clipboard-list"></i><span>규정 조문</span>
@@ -21168,20 +21183,20 @@
 
     const TIER_CARD_CLASS = {
       1: {
-        base: "tier-card cursor-pointer p-2.5 rounded-lg bg-blue-50/60 border border-blue-100 hover:border-blue-400 transition flex items-center justify-between",
-        active: "tier-card cursor-pointer p-2.5 rounded-lg bg-blue-100 border-2 border-blue-600 ring-2 ring-blue-300 ring-offset-1 shadow-md transition flex items-center justify-between"
+        base: "tier-card cursor-pointer p-2.5 rounded-lg bg-blue-50/60 border border-blue-100 hover:border-blue-400 transition flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between",
+        active: "tier-card cursor-pointer p-2.5 rounded-lg bg-blue-100 border-2 border-blue-600 ring-2 ring-blue-300 ring-offset-1 shadow-md transition flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between"
       },
       2: {
-        base: "tier-card cursor-pointer p-2.5 rounded-lg bg-purple-50/60 border border-purple-100 hover:border-purple-400 transition flex items-center justify-between",
-        active: "tier-card cursor-pointer p-2.5 rounded-lg bg-purple-100 border-2 border-purple-600 ring-2 ring-purple-300 ring-offset-1 shadow-md transition flex items-center justify-between"
+        base: "tier-card cursor-pointer p-2.5 rounded-lg bg-purple-50/60 border border-purple-100 hover:border-purple-400 transition flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between",
+        active: "tier-card cursor-pointer p-2.5 rounded-lg bg-purple-100 border-2 border-purple-600 ring-2 ring-purple-300 ring-offset-1 shadow-md transition flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between"
       },
       3: {
-        base: "tier-card cursor-pointer p-2.5 rounded-lg bg-emerald-50/60 border border-emerald-100 hover:border-emerald-400 transition flex items-center justify-between",
-        active: "tier-card cursor-pointer p-2.5 rounded-lg bg-emerald-100 border-2 border-emerald-600 ring-2 ring-emerald-300 ring-offset-1 shadow-md transition flex items-center justify-between"
+        base: "tier-card cursor-pointer p-2.5 rounded-lg bg-emerald-50/60 border border-emerald-100 hover:border-emerald-400 transition flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between",
+        active: "tier-card cursor-pointer p-2.5 rounded-lg bg-emerald-100 border-2 border-emerald-600 ring-2 ring-emerald-300 ring-offset-1 shadow-md transition flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between"
       },
       4: {
-        base: "tier-card cursor-pointer p-2.5 rounded-lg bg-amber-50/60 border border-amber-100 hover:border-amber-400 transition flex items-center justify-between",
-        active: "tier-card cursor-pointer p-2.5 rounded-lg bg-amber-100 border-2 border-amber-600 ring-2 ring-amber-300 ring-offset-1 shadow-md transition flex items-center justify-between"
+        base: "tier-card cursor-pointer p-2.5 rounded-lg bg-amber-50/60 border border-amber-100 hover:border-amber-400 transition flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between",
+        active: "tier-card cursor-pointer p-2.5 rounded-lg bg-amber-100 border-2 border-amber-600 ring-2 ring-amber-300 ring-offset-1 shadow-md transition flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between"
       }
     };
 
@@ -21213,10 +21228,10 @@
     };
 
     const STATUS_BTN_CLASS = {
-      "전체": { base: "status-btn px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 hover:bg-slate-200", active: "status-btn px-2.5 py-1 rounded-md bg-slate-800 text-white" },
-      "위법 인정": { base: "status-btn px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 hover:bg-rose-100", active: "status-btn px-2.5 py-1 rounded-md bg-rose-600 text-white" },
-      "적법 면책": { base: "status-btn px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100", active: "status-btn px-2.5 py-1 rounded-md bg-emerald-600 text-white" },
-      "조건부 갈림": { base: "status-btn px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 hover:bg-amber-100", active: "status-btn px-2.5 py-1 rounded-md bg-amber-500 text-white" }
+      "전체": { base: "status-btn px-2.5 py-1 rounded-md keep-together bg-slate-100 text-slate-600 hover:bg-slate-200", active: "status-btn px-2.5 py-1 rounded-md keep-together bg-slate-800 text-white" },
+      "위법 인정": { base: "status-btn px-2.5 py-1 rounded-md keep-together bg-rose-50 text-rose-700 hover:bg-rose-100", active: "status-btn px-2.5 py-1 rounded-md keep-together bg-rose-600 text-white" },
+      "적법 면책": { base: "status-btn px-2.5 py-1 rounded-md keep-together bg-emerald-50 text-emerald-700 hover:bg-emerald-100", active: "status-btn px-2.5 py-1 rounded-md keep-together bg-emerald-600 text-white" },
+      "조건부 갈림": { base: "status-btn px-2.5 py-1 rounded-md keep-together bg-amber-50 text-amber-700 hover:bg-amber-100", active: "status-btn px-2.5 py-1 rounded-md keep-together bg-amber-500 text-white" }
     };
 
     function escapeHtml(s) {
@@ -21242,9 +21257,9 @@
 
       document.querySelectorAll('.cat-btn').forEach(btn => {
         if (btn.dataset.cat === selectedCategory) {
-          btn.className = "cat-btn px-3 py-1.5 rounded-lg bg-slate-900 text-white font-medium";
+          btn.className = "cat-btn px-3 py-1.5 rounded-lg keep-together bg-slate-900 text-white font-medium";
         } else {
-          btn.className = "cat-btn px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200";
+          btn.className = "cat-btn px-3 py-1.5 rounded-lg keep-together bg-slate-100 text-slate-600 hover:bg-slate-200";
         }
       });
 
@@ -21284,8 +21299,8 @@
         fav: 'px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200',
         query: 'px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200'
       };
-      el.innerHTML = '<span class="text-slate-400 mr-1">적용 필터:</span>' +
-        parts.map(p => `<span class="font-semibold ${chipClass[p.kind]}">${escapeHtml(p.label)}</span>`).join('<span class="text-slate-300 mx-1">·</span>');
+      el.innerHTML = '<span class="text-slate-400 shrink-0">적용 필터:</span>' +
+        parts.map(p => `<span class="font-semibold ${p.kind === 'query' ? 'max-w-full break-words' : 'keep-together'} ${chipClass[p.kind]}">${escapeHtml(p.label)}</span>`).join('<span class="text-slate-300">·</span>');
     }
 
     // Category / Status Filter Helpers: HR before Immunity (Tier 선택은 유지하고 조합만 갱신)
@@ -21334,23 +21349,23 @@
     // Badge styling
     function getCategoryBadgeClass(category) {
       switch(category) {
-        case '연구비': return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
-        case '기술료': return 'bg-amber-50 text-amber-700 border border-amber-200';
-        case '계약': return 'bg-indigo-50 text-indigo-700 border border-indigo-200';
-        case '복무·이해충돌': return 'bg-rose-50 text-rose-700 border border-rose-200';
-        case '괴롭힘·성비위': return 'bg-purple-50 text-purple-700 border border-purple-200';
-        case '적극행정': return 'bg-sky-50 text-sky-700 border border-sky-200';
-        default: return 'bg-slate-100 text-slate-700';
+        case '연구비': return 'bg-emerald-50 text-emerald-700 border border-emerald-200 keep-together';
+        case '기술료': return 'bg-amber-50 text-amber-700 border border-amber-200 keep-together';
+        case '계약': return 'bg-indigo-50 text-indigo-700 border border-indigo-200 keep-together';
+        case '복무·이해충돌': return 'bg-rose-50 text-rose-700 border border-rose-200 keep-together';
+        case '괴롭힘·성비위': return 'bg-purple-50 text-purple-700 border border-purple-200 keep-together';
+        case '적극행정': return 'bg-sky-50 text-sky-700 border border-sky-200 keep-together';
+        default: return 'bg-slate-100 text-slate-700 keep-together';
       }
     }
 
     
     // Tier Badge Helper Functions
     function getTierBadgeClass(tier) {
-      if (tier === 1) return 'bg-blue-100 text-blue-800 border border-blue-200';
-      if (tier === 2) return 'bg-purple-100 text-purple-800 border border-purple-200';
-      if (tier === 3) return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
-      return 'bg-amber-100 text-amber-800 border border-amber-200';
+      if (tier === 1) return 'bg-blue-100 text-blue-800 border border-blue-200 keep-together';
+      if (tier === 2) return 'bg-purple-100 text-purple-800 border border-purple-200 keep-together';
+      if (tier === 3) return 'bg-emerald-100 text-emerald-800 border border-emerald-200 keep-together';
+      return 'bg-amber-100 text-amber-800 border border-amber-200 keep-together';
     }
 
     function getTierBadgeLabel(tier) {
@@ -21368,10 +21383,10 @@
     };
 
     function getPrecStateClass(state) {
-      if (state === '확정') return 'bg-blue-600 text-white border border-blue-700';
-      if (state === '파기환송') return 'bg-amber-100 text-amber-800 border border-amber-300';
-      if (state === '1심') return 'bg-slate-200 text-slate-700 border border-slate-300';
-      return 'bg-slate-100 text-slate-600';
+      if (state === '확정') return 'bg-blue-600 text-white border border-blue-700 keep-together';
+      if (state === '파기환송') return 'bg-amber-100 text-amber-800 border border-amber-300 keep-together';
+      if (state === '1심') return 'bg-slate-200 text-slate-700 border border-slate-300 keep-together';
+      return 'bg-slate-100 text-slate-600 keep-together';
     }
 
     function precStateBadgeHtml(item) {
@@ -21402,10 +21417,10 @@
 
     function getStatusBadgeClass(status) {
       switch(status) {
-        case '위법 인정': return 'bg-rose-100 text-rose-800 border border-rose-200';
-        case '적법 면책': return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
-        case '조건부 갈림': return 'bg-amber-100 text-amber-800 border border-amber-200';
-        default: return 'bg-slate-100 text-slate-700';
+        case '위법 인정': return 'bg-rose-100 text-rose-800 border border-rose-200 keep-together';
+        case '적법 면책': return 'bg-emerald-100 text-emerald-800 border border-emerald-200 keep-together';
+        case '조건부 갈림': return 'bg-amber-100 text-amber-800 border border-amber-200 keep-together';
+        default: return 'bg-slate-100 text-slate-700 keep-together';
       }
     }
 
